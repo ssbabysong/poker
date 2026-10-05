@@ -1,0 +1,13 @@
+{
+  "name": "德扑战绩",
+  "short_name": "德扑战绩",
+  "description": "德州扑克成绩记录与追踪",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0f1a14",
+  "theme_color": "#0f1a14",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

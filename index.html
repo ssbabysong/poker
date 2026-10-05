@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1a14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="德扑战绩">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>德扑战绩</title>
+<style>
+:root{
+  --bg:#0f1a14;--card:#182a20;--card2:#1f352a;--line:#2a4535;--text:#eef4ef;--mute:#8fa89a;
+  --win:#3ddc84;--lose:#ff6b61;--accent:#f5c542;
+  --safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font:16px/1.4 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+body{padding:calc(var(--safe-t) + 12px) 16px calc(80px + var(--safe-b));max-width:640px;margin:0 auto}
+h1{font-size:20px;margin:4px 0 14px;display:flex;justify-content:space-between;align-items:center}
+h2{font-size:14px;color:var(--mute);margin:20px 0 8px;font-weight:500}
+.win{color:var(--win)}.lose{color:var(--lose)}.mute{color:var(--mute)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:8px;scrollbar-width:none}
+.chip{flex:none;border:1px solid var(--line);background:transparent;color:var(--mute);padding:6px 14px;border-radius:99px;font-size:14px}
+.chip.on{background:var(--accent);color:#1a1a1a;border-color:var(--accent);font-weight:600}
+.hero{background:var(--card);border-radius:16px;padding:18px;text-align:center;margin-bottom:10px}
+.hero .big{font-size:40px;font-weight:700;letter-spacing:-1px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--card);border-radius:14px;padding:12px 14px}
+.stat .k{font-size:12px;color:var(--mute)}.stat .v{font-size:20px;font-weight:600;margin-top:2px}
+.panel{background:var(--card);border-radius:14px;padding:12px}
+svg.chart{width:100%;height:auto;display:block}
+.row{display:flex;justify-content:space-between;align-items:center;background:var(--card);border-radius:14px;padding:12px 14px;margin-bottom:8px}
+.row .l{min-width:0}.row .t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .s{font-size:12px;color:var(--mute);margin-top:2px}
+.row .r{font-size:18px;font-weight:700;margin-left:12px;white-space:nowrap}
+.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:6px;background:var(--card2);color:var(--accent);margin-right:6px;vertical-align:1px}
+.empty{text-align:center;color:var(--mute);padding:40px 0}
+nav{position:fixed;left:0;right:0;bottom:0;background:#0b140f;border-top:1px solid var(--line);display:flex;padding-bottom:var(--safe-b);z-index:5}
+nav button{flex:1;background:none;border:0;color:var(--mute);padding:10px 0 8px;font-size:12px}
+nav button b{display:block;font-size:20px;font-weight:400}
+nav button.on{color:var(--accent)}
+.fab{position:fixed;right:18px;bottom:calc(72px + var(--safe-b));width:56px;height:56px;border-radius:50%;border:0;background:var(--accent);color:#1a1a1a;font-size:30px;box-shadow:0 4px 14px #0008;z-index:6}
+.modal{position:fixed;inset:0;background:#000a;display:none;align-items:flex-end;justify-content:center;z-index:10}
+.modal.show{display:flex}
+.sheet{background:var(--card);width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + var(--safe-b))}
+.sheet h3{margin:0 0 12px;font-size:18px}
+label{display:block;font-size:12px;color:var(--mute);margin:10px 0 4px}
+input,select,textarea{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:11px;font-size:16px;font-family:inherit}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.preview{margin:14px 0 4px;text-align:center;font-size:22px;font-weight:700}
+.btns{display:flex;gap:10px;margin-top:14px}
+.btn{flex:1;padding:13px;border-radius:12px;border:0;font-size:16px;font-weight:600;background:var(--card2);color:var(--text)}
+.btn.pri{background:var(--accent);color:#1a1a1a}.btn.del{background:#4a2420;color:var(--lose);flex:0 0 80px}
+.set .btn{display:block;width:100%;margin-bottom:10px}
+.small{font-size:12px;color:var(--mute);margin-top:16px;line-height:1.6}
+</style>
+</head>
+<body>
+<h1><span id="title">德扑战绩</span></h1>
+<div id="view"></div>
+
+<button class="fab" id="fab" aria-label="新增">+</button>
+<nav>
+  <button data-tab="home"><b>📊</b>概览</button>
+  <button data-tab="list"><b>🃏</b>记录</button>
+  <button data-tab="set"><b>⚙️</b>设置</button>
+</nav>
+
+<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+
+<script>
+'use strict';
+const KEY = 'poker.sessions.v1', CFG = 'poker.cfg.v1';
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); };
+
+let sessions = [], cfg = { cur: '¥', lastLoc: '', lastStake: '' };
+let tab = 'home', fType = 'all', fPeriod = 'all';
+
+function load() {
+  try { sessions = JSON.parse(localStorage.getItem(KEY)) || []; } catch { sessions = []; }
+  try { cfg = { ...cfg, ...JSON.parse(localStorage.getItem(CFG)) }; } catch {}
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(sessions)); localStorage.setItem(CFG, JSON.stringify(cfg)); }
+  catch { alert('保存失败：浏览器存储不可用'); }
+}
+const profit = s => (+s.cashOut || 0) - (+s.buyIn || 0);
+const money = (n, sign) => {
+  const r = Math.round(n * 100) / 100;
+  const s = (sign && r > 0 ? '+' : r < 0 ? '-' : '') + cfg.cur + Math.abs(r).toLocaleString('zh-CN', { maximumFractionDigits: 2 });
+  return s;
+};
+const cls = n => n > 0 ? 'win' : n < 0 ? 'lose' : 'mute';
+
+function filtered() {
+  const now = new Date(), ym = today().slice(0, 7), y = today().slice(0, 4);
+  return sessions
+    .filter(s => fType === 'all' || s.type === fType)
+    .filter(s => fPeriod === 'all' || (fPeriod === 'month' ? s.date.startsWith(ym) : s.date.startsWith(y)))
+    .sort((a, b) => a.date.localeCompare(b.date) || a.created - b.created);
+}
+
+function chips() {
+  const t = [['all', '全部'], ['cash', '现金局'], ['tour', '锦标赛']];
+  const p = [['all', '全部时间'], ['month', '本月'], ['year', '今年']];
+  return `<div class="chips">${t.map(([k, v]) => `<button class="chip ${fType === k ? 'on' : ''}" data-ft="${k}">${v}</button>`).join('')}</div>
+  <div class="chips">${p.map(([k, v]) => `<button class="chip ${fPeriod === k ? 'on' : ''}" data-fp="${k}">${v}</button>`).join('')}</div>`;
+}
+
+function chart(list) {
+  if (list.length < 1) return '';
+  let acc = 0;
+  const pts = [0, ...list.map(s => (acc += profit(s)))];
+  const W = 320, H = 150, P = 8;
+  const min = Math.min(...pts), max = Math.max(...pts), span = (max - min) || 1;
+  const x = i => P + (W - 2 * P) * (pts.length === 1 ? 0 : i / (pts.length - 1));
+  const y = v => P + (H - 2 * P) * (1 - (v - min) / span);
+  const d = pts.map((v, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join('');
+  const zero = y(0), last = pts[pts.length - 1], col = last >= 0 ? '#3ddc84' : '#ff6b61';
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}">
+    <line x1="${P}" x2="${W - P}" y1="${zero}" y2="${zero}" stroke="#2a4535" stroke-dasharray="4 4"/>
+    <path d="${d}L${x(pts.length - 1)},${zero}L${x(0)},${zero}Z" fill="${col}" opacity=".12"/>
+    <path d="${d}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="${x(pts.length - 1)}" cy="${y(last)}" r="4" fill="${col}"/>
+    <text x="${P}" y="${H - 1}" font-size="10" fill="#8fa89a">最高 ${money(max)} · 最低 ${money(min)}</text></svg>`;
+}
+
+function home() {
+  const list = filtered();
+  const total = list.reduce((a, s) => a + profit(s), 0);
+  const wins = list.filter(s => profit(s) > 0).length;
+  const hours = list.reduce((a, s) => a + (+s.hours || 0), 0);
+  const withH = list.filter(s => +s.hours > 0);
+  const hProfit = withH.reduce((a, s) => a + profit(s), 0), hHours = withH.reduce((a, s) => a + +s.hours, 0);
+  const buyTotal = list.reduce((a, s) => a + (+s.buyIn || 0), 0);
+  const ps = list.map(profit);
+  const best = ps.length ? Math.max(...ps) : 0, worst = ps.length ? Math.min(...ps) : 0;
+  const st = (k, v, c = '') => `<div class="stat"><div class="k">${k}</div><div class="v ${c}">${v}</div></div>`;
+
+  // streak
+  let streak = 0;
+  for (let i = list.length - 1; i >= 0; i--) {
+    const sg = Math.sign(profit(list[i]));
+    if (!sg || (streak && Math.sign(streak) !== sg)) break;
+    streak += sg;
+  }
+
+  // by location
+  const byLoc = {};
+  list.forEach(s => { const k = s.location || '未填写'; (byLoc[k] ||= { n: 0, p: 0 }); byLoc[k].n++; byLoc[k].p += profit(s); });
+  const locs = Object.entries(byLoc).sort((a, b) => b[1].p - a[1].p);
+
+  // by month
+  const byM = {};
+  list.forEach(s => { const k = s.date.slice(0, 7); byM[k] = (byM[k] || 0) + profit(s); });
+  const months = Object.entries(byM).sort((a, b) => b[0].localeCompare(a[0])).slice(0, 12);
+
+  if (!sessions.length) return chips() + `<div class="empty">还没有记录<br>点右下角 + 记下第一场牌局</div>`;
+  return chips() + `
+  <div class="hero"><div class="mute" style="font-size:13px">总盈亏</div><div class="big ${cls(total)}">${money(total, true)}</div></div>
+  <div class="grid">
+    ${st('场次', list.length)}
+    ${st('胜率', list.length ? Math.round(wins / list.length * 100) + '%' : '-')}
+    ${st('时薪', hHours ? money(hProfit / hHours, true) + '/h' : '-', cls(hProfit))}
+    ${st('场均', list.length ? money(total / list.length, true) : '-', cls(total))}
+    ${st('最大盈利', list.length ? money(best, true) : '-', cls(best))}
+    ${st('最大亏损', list.length ? money(worst, true) : '-', cls(worst))}
+    ${st('总时长', hours ? hours.toFixed(1) + ' h' : '-')}
+    ${st('投资回报率', buyTotal ? Math.round(total / buyTotal * 100) + '%' : '-', cls(total))}
+  </div>
+  ${streak ? `<div class="small" style="margin-top:10px">当前 ${streak > 0 ? `<span class="win">${streak} 连胜</span>` : `<span class="lose">${-streak} 连败</span>`}</div>` : ''}
+  <h2>累计盈亏曲线</h2><div class="panel">${list.length ? chart(list) : '<div class="empty">无数据</div>'}</div>
+  ${months.length ? `<h2>按月</h2>${months.map(([m, p]) => `<div class="row"><div class="t">${m}</div><div class="r ${cls(p)}">${money(p, true)}</div></div>`).join('')}` : ''}
+  ${locs.length ? `<h2>按地点</h2>${locs.map(([k, v]) => `<div class="row"><div class="l"><div class="t">${esc(k)}</div><div class="s">${v.n} 场</div></div><div class="r ${cls(v.p)}">${money(v.p, true)}</div></div>`).join('')}` : ''}`;
+}
+
+function listView() {
+  if (!sessions.length) return `<div class="empty">还没有记录<br>点右下角 + 添加</div>`;
+  const l = [...sessions].sort((a, b) => b.date.localeCompare(a.date) || b.created - a.created);
+  return l.map(s => {
+    const p = profit(s);
+    return `<div class="row" data-id="${s.id}"><div class="l">
+      <div class="t"><span class="tag">${s.type === 'tour' ? '锦标赛' : '现金局'}</span>${esc(s.location || '未填写地点')}${s.stake ? ' · ' + esc(s.stake) : ''}</div>
+      <div class="s">${s.date} · 买入 ${money(s.buyIn)} → ${money(s.cashOut)}${+s.hours ? ' · ' + s.hours + 'h' : ''}${s.note ? ' · ' + esc(s.note) : ''}</div>
+    </div><div class="r ${cls(p)}">${money(p, true)}</div></div>`;
+  }).join('');
+}
+
+function settings() {
+  return `<div class="set">
+    <label>货币符号</label><input id="cur" value="${esc(cfg.cur)}" maxlength="4">
+    <h2>数据（仅保存在本机浏览器）</h2>
+    <button class="btn" id="expJson">导出备份 (JSON)</button>
+    <button class="btn" id="expCsv">导出表格 (CSV)</button>
+    <button class="btn" id="impJson">导入备份 (JSON)</button>
+    <input type="file" id="file" accept=".json,application/json" hidden>
+    <button class="btn del" style="width:100%;flex:none" id="clear">清空所有数据</button>
+    <div class="small">数据存储在这台手机的浏览器里，清除浏览器数据或换手机会丢失，请定期导出备份。<br>iPhone：Safari 打开 → 分享 → 添加到主屏幕，即可像 App 一样使用。</div>
+  </div>`;
+}
+
+function render() {
+  $('#fab').style.display = tab === 'set' ? 'none' : '';
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  $('#view').innerHTML = tab === 'home' ? home() : tab === 'list' ? listView() : settings();
+  if (tab === 'set') bindSettings();
+}
+
+function openForm(id) {
+  const s = sessions.find(x => x.id === id) || { type: 'cash', date: today(), location: cfg.lastLoc, stake: cfg.lastStake, buyIn: '', cashOut: '', hours: '', note: '' };
+  const locs = [...new Set(sessions.map(x => x.location).filter(Boolean))];
+  $('#sheet').innerHTML = `<h3>${id ? '编辑牌局' : '记一场'}</h3>
+    <div class="two"><div><label>日期</label><input type="date" id="f_date" value="${s.date}"></div>
+    <div><label>类型</label><select id="f_type"><option value="cash" ${s.type === 'cash' ? 'selected' : ''}>现金局</option><option value="tour" ${s.type === 'tour' ? 'selected' : ''}>锦标赛</option></select></div></div>
+    <div class="two"><div><label>地点</label><input id="f_loc" list="locs" value="${esc(s.location)}" placeholder="如：朋友家"><datalist id="locs">${locs.map(l => `<option value="${esc(l)}">`).join('')}</datalist></div>
+    <div><label>盲注 / 级别</label><input id="f_stake" value="${esc(s.stake)}" placeholder="如：1/2"></div></div>
+    <div class="two"><div><label>买入合计</label><input type="number" inputmode="decimal" id="f_buy" value="${s.buyIn}" placeholder="0"></div>
+    <div><label>最终带出</label><input type="number" inputmode="decimal" id="f_out" value="${s.cashOut}" placeholder="0"></div></div>
+    <label>时长（小时）</label><input type="number" inputmode="decimal" step="0.25" id="f_hours" value="${s.hours}" placeholder="如：4.5">
+    <label>备注</label><textarea id="f_note" rows="2" placeholder="牌局复盘、对手…">${esc(s.note)}</textarea>
+    <div class="preview" id="pv"></div>
+    <div class="btns">${id ? '<button class="btn del" id="f_del">删除</button>' : ''}<button class="btn" id="f_cancel">取消</button><button class="btn pri" id="f_save">保存</button></div>`;
+  $('#modal').classList.add('show');
+  const upd = () => { const p = (+$('#f_out').value || 0) - (+$('#f_buy').value || 0); $('#pv').className = 'preview ' + cls(p); $('#pv').textContent = money(p, true); };
+  ['f_buy', 'f_out'].forEach(i => $('#' + i).addEventListener('input', upd)); upd();
+  $('#f_cancel').onclick = closeForm;
+  $('#f_save').onclick = () => {
+    const buy = $('#f_buy').value, out = $('#f_out').value;
+    if (buy === '' || out === '') return alert('请填写买入和带出金额');
+    const rec = { id: s.id || crypto.randomUUID?.() || String(Date.now() + Math.random()), created: s.created || Date.now(),
+      date: $('#f_date').value || today(), type: $('#f_type').value, location: $('#f_loc').value.trim(), stake: $('#f_stake').value.trim(),
+      buyIn: +buy, cashOut: +out, hours: +$('#f_hours').value || 0, note: $('#f_note').value.trim() };
+    cfg.lastLoc = rec.location; cfg.lastStake = rec.stake;
+    if (id) sessions[sessions.findIndex(x => x.id === id)] = rec; else sessions.push(rec);
+    save(); closeForm(); render();
+  };
+  if (id) $('#f_del').onclick = () => { if (confirm('确定删除这场记录？')) { sessions = sessions.filter(x => x.id !== id); save(); closeForm(); render(); } };
+}
+const closeForm = () => $('#modal').classList.remove('show');
+
+function download(name, text, type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], { type }));
+  a.download = name; document.body.appendChild(a); a.click(); a.remove();
+}
+function bindSettings() {
+  $('#cur').oninput = e => { cfg.cur = e.target.value || '¥'; save(); };
+  $('#expJson').onclick = () => download(`poker-backup-${today()}.json`, JSON.stringify({ sessions, cfg }, null, 2), 'application/json');
+  $('#expCsv').onclick = () => {
+    const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const rows = [['日期', '类型', '地点', '盲注', '买入', '带出', '盈亏', '时长(h)', '备注'].map(q).join(',')]
+      .concat([...sessions].sort((a, b) => a.date.localeCompare(b.date)).map(s => [s.date, s.type === 'tour' ? '锦标赛' : '现金局', s.location, s.stake, s.buyIn, s.cashOut, profit(s), s.hours, s.note].map(q).join(',')));
+    download(`poker-${today()}.csv`, '﻿' + rows.join('\n'), 'text/csv');
+  };
+  $('#impJson').onclick = () => $('#file').click();
+  $('#file').onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    try {
+      const d = JSON.parse(await f.text());
+      const arr = Array.isArray(d) ? d : d.sessions;
+      if (!Array.isArray(arr)) throw 0;
+      if (!confirm(`导入 ${arr.length} 条记录？将与现有记录合并（相同 ID 会被覆盖）。`)) return;
+      const m = new Map(sessions.map(s => [s.id, s]));
+      arr.forEach(s => { if (s && s.id && s.date) m.set(s.id, s); });
+      sessions = [...m.values()]; save(); render(); alert('导入完成');
+    } catch { alert('文件格式不正确'); }
+    e.target.value = '';
+  };
+  $('#clear').onclick = () => { if (confirm('将删除全部记录且无法恢复，确定？') && confirm('再确认一次：真的清空吗？')) { sessions = []; save(); render(); } };
+}
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-tab],[data-ft],[data-fp],.row[data-id]');
+  if (!t) return;
+  if (t.dataset.tab) { tab = t.dataset.tab; render(); window.scrollTo(0, 0); }
+  else if (t.dataset.ft) { fType = t.dataset.ft; render(); }
+  else if (t.dataset.fp) { fPeriod = t.dataset.fp; render(); }
+  else if (t.dataset.id) openForm(t.dataset.id);
+});
+$('#fab').onclick = () => openForm();
+$('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeForm(); });
+
+load(); render();
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
