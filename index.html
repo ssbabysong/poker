@@ -3,10 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0d1424">
+<meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b0b0c" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="牌局本">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -14,206 +15,167 @@
 <title>牌局本</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: one narrow column, a felt "table" hero, a chip-shaped add button in the tab bar. */
+/* Layout: one quiet column. Hairlines instead of cards; a serif numeral carries the page. */
 :root{
-  --bg:#eef1f6; --surface:#ffffff; --surface-2:#e5e9f1; --line:#d6dce7;
-  --text:#121a2b; --muted:#68738a; --faint:#9aa3b5;
-  --brass:#a77a1e; --brass-ink:#ffffff;
-  --win:#0e9467; --win-soft:#0e94671a; --loss:#d4433f; --loss-soft:#d4433f1a;
-  --felt-1:#1f6a50; --felt-2:#0f3f30; --rail:#3a2a1c;
-  --shadow:0 1px 2px #1a24400f,0 6px 20px #1a24400d;
-  --num:"Barlow Condensed","DIN Alternate","Roboto Condensed",-apple-system,"PingFang SC",sans-serif;
-  --ui:"Barlow",-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
-  --r:16px;
+  --bg:#f7f7f5; --sheet:#ffffff; --ink:#111113; --sub:#76767c; --hair:#e4e4e1; --soft:#eeeeeb;
+  --win:#2e7a57; --loss:#b0463b; --gold:#9a7b3f;
+  --serif:"Instrument Serif","Songti SC","STSong",Georgia,serif;
+  --sans:"Manrope",-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
   --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px);
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0d1424; --surface:#151e33; --surface-2:#1d2840; --line:#26324d;
-  --text:#ecf0f8; --muted:#8c97b0; --faint:#5c6782;
-  --brass:#dcb15a; --brass-ink:#1a1307;
-  --win:#3fd6a1; --win-soft:#3fd6a11f; --loss:#ff7a70; --loss-soft:#ff7a701f;
-  --shadow:0 1px 2px #0006,0 8px 24px #0004; color-scheme:dark;
+  --bg:#0b0b0c; --sheet:#151517; --ink:#f2f1ee; --sub:#8b8b91; --hair:#242427; --soft:#1c1c1f;
+  --win:#6fc39b; --loss:#e48a7e; --gold:#c9a96a; color-scheme:dark;
 }}
 :root[data-theme="dark"]{
-  --bg:#0d1424; --surface:#151e33; --surface-2:#1d2840; --line:#26324d;
-  --text:#ecf0f8; --muted:#8c97b0; --faint:#5c6782;
-  --brass:#dcb15a; --brass-ink:#1a1307;
-  --win:#3fd6a1; --win-soft:#3fd6a11f; --loss:#ff7a70; --loss-soft:#ff7a701f;
-  --shadow:0 1px 2px #0006,0 8px 24px #0004; color-scheme:dark;
+  --bg:#0b0b0c; --sheet:#151517; --ink:#f2f1ee; --sub:#8b8b91; --hair:#242427; --soft:#1c1c1f;
+  --win:#6fc39b; --loss:#e48a7e; --gold:#c9a96a; color-scheme:dark;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 var(--ui);-webkit-font-smoothing:antialiased}
-body{min-height:100vh}
-button{font:inherit;color:inherit;cursor:pointer}
-button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
-.num{font-family:var(--num);font-variant-numeric:tabular-nums;letter-spacing:.2px}
-.win{color:var(--win)}.loss{color:var(--loss)}.muted{color:var(--muted)}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:focus-visible{outline:1.5px solid var(--gold);outline-offset:3px;border-radius:4px}
+.tn{font-variant-numeric:tabular-nums}
+.win{color:var(--win)}.loss{color:var(--loss)}.sub{color:var(--sub)}
 
-.app{max-width:560px;margin:0 auto;padding:calc(var(--safe-t) + 14px) 16px calc(96px + var(--safe-b))}
-header.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-header.top h1{font-size:22px;margin:0;font-weight:700;letter-spacing:.5px}
-header.top .sub{font-size:12px;color:var(--muted)}
-.icon-btn{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center}
-.icon-btn svg{width:18px;height:18px}
+.app{max-width:520px;margin:0 auto;padding:calc(var(--safe-t) + 18px) 22px calc(110px + var(--safe-b))}
+header{display:flex;align-items:center;justify-content:space-between}
+.brand{font-family:var(--serif);font-size:22px;letter-spacing:.5px}
+.brand i{color:var(--gold);font-style:normal;margin-right:6px}
+.gear{width:36px;height:36px;display:grid;place-items:center;margin-right:-8px;color:var(--sub)}
+.gear svg{width:19px;height:19px}
 
-section{margin-top:22px}
-.sec-h{display:flex;align-items:baseline;justify-content:space-between;margin:0 2px 10px}
-.sec-h h2{font-size:13px;font-weight:600;color:var(--muted);margin:0;letter-spacing:1px}
-.sec-h a,.sec-h button.link{font-size:13px;color:var(--brass);background:none;border:0;padding:0;text-decoration:none}
+.tabs{display:flex;gap:26px;margin:22px 0 0;border-bottom:1px solid var(--hair)}
+.tabs button{padding:0 0 10px;font-size:14px;color:var(--sub);font-weight:500;position:relative}
+.tabs button.on{color:var(--ink)}
+.tabs button.on::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1.5px;background:var(--ink)}
 
-/* Felt table hero */
-.table{position:relative;border-radius:120px/90px;padding:26px 20px 22px;text-align:center;color:#f4efe3;
-  background:radial-gradient(ellipse at 50% 38%,var(--felt-1),var(--felt-2) 75%);
-  box-shadow:inset 0 0 0 7px var(--rail),inset 0 0 0 8px #c9a15a55,inset 0 10px 40px #0005,var(--shadow);overflow:hidden}
-.table::after{content:"";position:absolute;inset:18px;border-radius:100px/70px;border:1px dashed #ffffff22;pointer-events:none}
-.table .lbl{font-size:12px;letter-spacing:3px;opacity:.75}
-.table .big{font-family:var(--num);font-weight:700;font-size:54px;line-height:1.05;margin:4px 0 6px;font-variant-numeric:tabular-nums;text-shadow:0 2px 12px #0004}
-.table .big.pos{color:#8ff0c6}.table .big.neg{color:#ffb0a8}
-.table .meta{display:flex;justify-content:center;gap:18px;font-size:12px;opacity:.85}
-.table .meta b{font-family:var(--num);font-size:16px;font-weight:600;display:block;opacity:1}
-.table svg.spark{display:block;width:70%;height:34px;margin:10px auto 0;opacity:.9}
+.hero{padding:40px 0 8px}
+.eyebrow{font-size:11px;letter-spacing:2.5px;color:var(--sub);text-transform:uppercase}
+.total{font-family:var(--serif);font-size:72px;line-height:1;margin:14px 0 0;letter-spacing:-1px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.total .cur{font-size:.5em;vertical-align:.55em;margin:0 3px 0 2px;letter-spacing:0}
+.trio{display:flex;gap:28px;margin-top:22px}
+.trio div{font-size:12px;color:var(--sub)}
+.trio b{display:block;font-size:17px;font-weight:600;color:var(--ink);margin-bottom:1px}
+.trio b.win{color:var(--win)}.trio b.loss{color:var(--loss)}
 
-/* Live session */
-.live{background:var(--surface);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);border:1px solid var(--line)}
-.live-top{display:flex;justify-content:space-between;align-items:center}
-.pulse{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--loss);font-weight:600;letter-spacing:1px}
-.pulse::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--loss);animation:pl 1.4s infinite}
-@keyframes pl{0%{box-shadow:0 0 0 0 var(--loss)}70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
-.live .clock{font-family:var(--num);font-size:44px;font-weight:600;font-variant-numeric:tabular-nums;margin:6px 0 2px}
-.live .info{font-size:13px;color:var(--muted)}
-.live .row3{display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:8px;margin-top:14px}
-.start{width:100%;display:flex;align-items:center;gap:14px;background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);padding:14px 16px;text-align:left}
-.start .dot{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--win-soft);color:var(--win);flex:none}
-.start b{display:block;font-size:15px}.start span{font-size:12px;color:var(--muted)}
+.chart{margin:30px -4px 0;position:relative}
+.chart svg{display:block;width:100%;height:auto;touch-action:pan-y;overflow:visible}
+.chart .cap{display:flex;justify-content:space-between;font-size:11px;color:var(--sub);margin-top:6px;padding:0 4px}
+.scrub{position:absolute;top:-6px;left:0;transform:translateX(-50%);font-size:11px;background:var(--ink);color:var(--bg);padding:3px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s}
 
-/* Buttons */
-.btn{border:0;border-radius:12px;padding:12px 14px;font-weight:600;background:var(--surface-2);color:var(--text);font-size:15px}
-.btn.pri{background:var(--brass);color:var(--brass-ink)}
-.btn.danger{background:var(--loss-soft);color:var(--loss)}
-.btn.block{width:100%}
-.btn:active{transform:scale(.98)}
+h2{font-size:11px;letter-spacing:2.5px;color:var(--sub);font-weight:500;margin:44px 0 6px;display:flex;justify-content:space-between;align-items:baseline;text-transform:uppercase}
+h2 button{font-size:12px;letter-spacing:0;color:var(--sub);text-transform:none}
 
-/* KPI grid */
-.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.kpi{background:var(--surface);border-radius:14px;padding:12px;border:1px solid var(--line)}
-.kpi .k{font-size:11px;color:var(--muted);letter-spacing:.5px}
-.kpi .v{font-family:var(--num);font-size:22px;font-weight:600;margin-top:2px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rows{border-top:1px solid var(--hair)}
+.r{display:flex;align-items:center;width:100%;text-align:left;padding:15px 0;border-bottom:1px solid var(--hair);gap:14px}
+.r .d{width:46px;flex:none;font-size:11px;color:var(--sub);line-height:1.3}
+.r .d b{display:block;font-family:var(--serif);font-size:24px;font-weight:400;color:var(--ink);line-height:1}
+.r .m{flex:1;min-width:0}
+.r .m .t{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r .m .n{font-size:12px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r .v{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mh{display:flex;justify-content:space-between;align-items:baseline;margin:34px 0 4px}
+.mh span:first-child{font-family:var(--serif);font-size:24px}
+.mh span:last-child{font-weight:600;font-variant-numeric:tabular-nums}
+.mh small{font-family:var(--sans);font-size:12px;color:var(--sub);margin-left:8px}
 
-/* Session list */
-.list{background:var(--surface);border-radius:var(--r);border:1px solid var(--line);overflow:hidden}
-.item{display:flex;align-items:center;gap:12px;padding:12px 14px;width:100%;background:none;border:0;border-top:1px solid var(--line);text-align:left}
-.item:first-child{border-top:0}
-.item:active{background:var(--surface-2)}
-.date{width:40px;flex:none;text-align:center;line-height:1.1}
-.date b{display:block;font-family:var(--num);font-size:22px;font-weight:600}
-.date span{font-size:11px;color:var(--muted)}
-.item .mid{flex:1;min-width:0}
-.item .t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.item .s{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pill{font-family:var(--num);font-weight:600;font-size:17px;padding:4px 10px;border-radius:10px;white-space:nowrap;font-variant-numeric:tabular-nums}
-.pill.win{background:var(--win-soft)}.pill.loss{background:var(--loss-soft)}.pill.even{background:var(--surface-2);color:var(--muted)}
-.tag{display:inline-block;font-size:10px;font-weight:600;padding:1px 6px;border-radius:5px;margin-right:6px;vertical-align:2px;letter-spacing:.5px}
-.tag.cash{background:var(--win-soft);color:var(--win)}.tag.tour{background:#7b61ff22;color:#8b74ff}
-.month-h{display:flex;justify-content:space-between;align-items:baseline;margin:20px 4px 8px}
-.month-h b{font-size:15px}
-.month-h span{font-family:var(--num);font-size:16px;font-weight:600}
+.kv{border-top:1px solid var(--hair)}
+.kv div{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--hair)}
+.kv span{color:var(--sub)}
+.kv b{font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
 
-/* Filters */
-.seg{display:flex;background:var(--surface-2);border-radius:12px;padding:3px;gap:2px}
-.seg button{flex:1;border:0;background:none;padding:8px 0;border-radius:9px;font-size:13px;color:var(--muted);font-weight:600}
-.seg button.on{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
-.filters{display:flex;flex-direction:column;gap:8px}
+.periods{display:flex;gap:8px;margin-top:22px;flex-wrap:wrap}
+.periods button{font-size:13px;padding:6px 13px;border-radius:99px;color:var(--sub);border:1px solid var(--hair)}
+.periods button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 
-/* Charts */
-.card{background:var(--surface);border-radius:var(--r);border:1px solid var(--line);padding:14px}
-.chart-wrap{position:relative}
-svg.chart{width:100%;height:auto;display:block;touch-action:pan-y}
-.chart-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
-.chart-head .v{font-family:var(--num);font-size:24px;font-weight:600}
-.chart-head .d{font-size:12px;color:var(--muted)}
-.bars-legend{font-size:11px;color:var(--muted)}
-table.brk{width:100%;border-collapse:collapse;font-size:14px}
-table.brk td{padding:9px 0;border-top:1px solid var(--line)}
-table.brk tr:first-child td{border-top:0}
-table.brk td.r{text-align:right;font-family:var(--num);font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
-table.brk td.c{text-align:right;color:var(--muted);font-size:12px;padding-right:10px;white-space:nowrap}
-.ring{display:flex;align-items:center;gap:16px}
-.ring svg{width:84px;height:84px;flex:none}
-.ring .lines{font-size:13px;color:var(--muted);display:grid;gap:4px}
-.ring .lines b{color:var(--text);font-family:var(--num);font-size:16px;margin-left:4px}
+.loc{padding:14px 0;border-bottom:1px solid var(--hair)}
+.loc:first-child{border-top:1px solid var(--hair)}
+.loc .top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.loc .top b{font-weight:600;font-variant-numeric:tabular-nums}
+.loc .meta{font-size:12px;color:var(--sub);margin-top:2px}
+.bar{height:3px;background:var(--soft);border-radius:2px;margin-top:9px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:2px}
 
-.empty{text-align:center;padding:36px 16px;color:var(--muted)}
-.empty .suit{font-size:42px;color:var(--brass);line-height:1}
-.empty p{margin:10px 0 16px}
+.empty{padding:70px 0 20px;text-align:center}
+.empty .suits{font-family:var(--serif);font-size:30px;letter-spacing:12px;color:var(--gold)}
+.empty p{color:var(--sub);margin:16px 0 26px;line-height:1.8}
+.empty .link{font-size:13px;color:var(--sub);text-decoration:underline;text-underline-offset:3px;margin-top:18px}
 
-/* Tab bar */
-nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);padding-bottom:var(--safe-b)}
-nav.tabs .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);align-items:end}
-nav.tabs button.tab{background:none;border:0;padding:8px 0 7px;color:var(--faint);font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px}
-nav.tabs button.tab svg{width:22px;height:22px}
-nav.tabs button.tab.on{color:var(--brass)}
-.chip-btn{justify-self:center;width:58px;height:58px;margin:-22px 0 6px;border-radius:50%;border:0;padding:0;
-  background:radial-gradient(circle,var(--brass) 54%,transparent 55%),repeating-conic-gradient(var(--brass) 0 20deg,#fff 20deg 40deg);
-  box-shadow:0 6px 18px #0004,0 0 0 4px var(--bg);color:var(--brass-ink);display:grid;place-items:center}
-.chip-btn svg{width:26px;height:26px}
+.add{position:fixed;left:50%;bottom:calc(22px + var(--safe-b));transform:translateX(-50%);z-index:20;background:var(--ink);color:var(--bg);
+  padding:14px 30px;border-radius:99px;font-weight:600;font-size:15px;letter-spacing:1px;box-shadow:0 10px 30px #0000002e;display:flex;align-items:center;gap:8px}
+.add svg{width:16px;height:16px}
+.btn{display:inline-block;background:var(--ink);color:var(--bg);padding:13px 28px;border-radius:99px;font-weight:600}
+.btn.ghost{background:none;color:var(--ink);border:1px solid var(--hair)}
 
-/* Sheets */
-.scrim{position:fixed;inset:0;background:#05091480;z-index:40;opacity:0;pointer-events:none;transition:opacity .2s}
+/* sheet */
+.scrim{position:fixed;inset:0;background:#0000004d;z-index:40;opacity:0;pointer-events:none;transition:opacity .25s}
 .scrim.show{opacity:1;pointer-events:auto}
-.sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;max-width:560px;margin:0 auto;background:var(--surface);border-radius:22px 22px 0 0;
-  max-height:92vh;overflow:auto;padding:8px 16px calc(18px + var(--safe-b));transform:translateY(105%);transition:transform .26s cubic-bezier(.2,.8,.2,1)}
-.sheet:not(.show){visibility:hidden;transition:transform .26s,visibility 0s .26s}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;max-width:520px;margin:0 auto;background:var(--sheet);border-radius:24px 24px 0 0;
+  max-height:94vh;overflow:auto;padding:10px 22px calc(22px + var(--safe-b));transform:translateY(102%);transition:transform .32s cubic-bezier(.2,.8,.2,1)}
 .sheet.show{transform:none}
+.sheet:not(.show){visibility:hidden;transition:transform .32s,visibility 0s .32s}
+.grab{width:36px;height:4px;border-radius:2px;background:var(--hair);margin:0 auto 18px}
+.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.sh h3{font-family:var(--serif);font-weight:400;font-size:28px;margin:0}
+.sh button{font-size:14px;color:var(--sub)}
+
+.wl{display:flex;justify-content:center;gap:4px;margin:18px auto 0;background:var(--soft);border-radius:99px;padding:4px;width:max-content}
+.wl button{padding:7px 26px;border-radius:99px;font-size:14px;font-weight:600;color:var(--sub)}
+.wl button.on[data-v="1"]{background:var(--sheet);color:var(--win);box-shadow:0 1px 4px #0000001a}
+.wl button.on[data-v="-1"]{background:var(--sheet);color:var(--loss);box-shadow:0 1px 4px #0000001a}
+.amt{display:flex;align-items:baseline;justify-content:center;margin:18px 0 8px;font-family:var(--serif)}
+.amt span{font-size:34px;color:var(--sub);margin-right:4px}
+.amt input{font-family:var(--serif);font-size:64px;border:0;background:none;color:var(--ink);width:5ch;text-align:left;padding:0;outline:0;font-variant-numeric:tabular-nums}
+.amt input::placeholder{color:var(--hair)}
+.amt.win input{color:var(--win)}.amt.loss input{color:var(--loss)}
 input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 input[type=number]{-moz-appearance:textfield}
-.grab{width:38px;height:5px;border-radius:3px;background:var(--line);margin:4px auto 10px}
-.sheet h3{margin:0 0 12px;font-size:18px;display:flex;justify-content:space-between;align-items:center}
-.field{margin-bottom:12px}
-.field label{display:block;font-size:12px;color:var(--muted);margin:0 0 5px;font-weight:600;letter-spacing:.5px}
-.field input,.field select,.field textarea{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:11px 12px;font-size:16px;font-family:var(--ui)}
-.field input.amt{font-family:var(--num);font-size:24px;font-weight:600;padding:8px 12px}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.quick{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
-.quick button{border:1px solid var(--line);background:none;border-radius:8px;padding:4px 10px;font-size:13px;color:var(--muted);font-family:var(--num);font-weight:600}
-.result{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:14px;background:var(--surface-2);margin:4px 0 14px}
-.result span{font-size:13px;color:var(--muted)}
-.result b{font-family:var(--num);font-size:30px;font-weight:700}
-.actions{display:flex;gap:10px}
-.actions .btn{flex:1}
-.actions .btn.danger{flex:0 0 76px}
-.confirm-msg{color:var(--muted);margin:0 0 16px}
+.field{border-top:1px solid var(--hair);display:flex;align-items:center;min-height:54px;gap:12px}
+.field.last{border-bottom:1px solid var(--hair)}
+.field label{width:46px;flex:none;font-size:13px;color:var(--sub)}
+.field input{flex:1;min-width:0;border:0;background:none;color:var(--ink);font:16px var(--sans);padding:14px 0;outline:0}
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:0 0 12px 58px;margin-top:-4px}
+.chips button{font-size:12px;padding:4px 11px;border-radius:99px;background:var(--soft);color:var(--sub)}
+.foot{display:flex;gap:10px;margin-top:24px}
+.foot .btn{flex:1;text-align:center}
+.foot .del{flex:0 0 auto;color:var(--loss);padding:13px 18px}
+.msg{color:var(--sub);margin:6px 0 4px;line-height:1.7}
 
-.toast{position:fixed;left:50%;top:calc(var(--safe-t) + 14px);transform:translate(-50%,-20px);opacity:0;z-index:60;background:var(--text);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;transition:.25s;pointer-events:none;max-width:calc(100% - 32px)}
+.set .item{display:flex;justify-content:space-between;align-items:center;width:100%;padding:15px 0;border-bottom:1px solid var(--hair);text-align:left}
+.set .item span{color:var(--sub);font-size:14px}
+.set .item.danger{color:var(--loss)}
+.note{font-size:12px;color:var(--sub);line-height:1.8;margin-top:14px}
+.seg{display:flex;gap:4px}
+.seg button{font-size:13px;padding:5px 11px;border-radius:99px;color:var(--sub)}
+.seg button.on{background:var(--soft);color:var(--ink);font-weight:600}
+textarea.paste{width:100%;min-height:150px;border:1px solid var(--hair);border-radius:12px;background:var(--bg);color:var(--ink);padding:12px;font:12px ui-monospace,Menlo,monospace;margin-top:10px}
+
+.toast{position:fixed;left:50%;top:calc(var(--safe-t) + 16px);transform:translate(-50%,-14px);opacity:0;z-index:60;background:var(--ink);color:var(--bg);
+  padding:9px 18px;border-radius:99px;font-size:13px;font-weight:600;transition:.25s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1;transform:translate(-50%,0)}
-.settings .grp{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-.settings .opt{display:flex;justify-content:space-between;align-items:center;padding:13px 14px;border-top:1px solid var(--line);width:100%;background:none;border-left:0;border-right:0;border-bottom:0;text-align:left;font-size:15px}
-.settings .opt:first-child{border-top:0}
-.settings .opt span{color:var(--muted);font-size:13px}
-.settings .opt.red{color:var(--loss)}
-.note{font-size:12px;color:var(--muted);line-height:1.7;margin:10px 4px}
-textarea.paste{width:100%;min-height:140px;font-family:ui-monospace,Menlo,monospace;font-size:12px}
+.fade{animation:fd .35s ease both}
+@keyframes fd{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
 <div class="app">
-  <header class="top">
-    <div><h1 id="pageTitle">牌局本</h1><div class="sub" id="pageSub"></div></div>
+  <header>
+    <div class="brand"><i>♠</i>牌局本</div>
+    <button class="gear" data-act="settings" aria-label="设置"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></button>
   </header>
+  <nav class="tabs">
+    <button data-tab="home">总览</button>
+    <button data-tab="list">明细</button>
+    <button data-tab="stats">分析</button>
+  </nav>
   <main id="view"></main>
 </div>
-
-<nav class="tabs"><div class="in">
-  <button class="tab" data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>首页</button>
-  <button class="tab" data-tab="list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="12" height="17" rx="2"/><path d="M8 7h4M8 11h4M19 7v13a1 1 0 0 1-1 1H8"/></svg>记录</button>
-  <button class="chip-btn" id="addBtn" aria-label="记一场"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
-  <button class="tab" data-tab="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18M6 16l4-5 3 3 6-8"/></svg>统计</button>
-  <button class="tab" data-tab="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>设置</button>
-</div></nav>
-
+<button class="add" data-act="add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>记一笔</button>
 <div class="scrim" id="scrim"></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
 <div class="toast" id="toast"></div>
@@ -221,478 +183,273 @@ textarea.paste{width:100%;min-height:140px;font-family:ui-monospace,Menlo,monosp
 
 <script>
 'use strict';
-/* ---------- storage ---------- */
-const KEY = 'poker.sessions.v1', CFG = 'poker.cfg.v1', LIVE = 'poker.live.v1';
+const KEY = 'poker.sessions.v1', CFG = 'poker.cfg.v1';
 const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
-  set(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch { toast('无法保存：浏览器存储不可用'); } }
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { toast('无法保存，浏览器存储不可用'); } }
 };
 let sessions = store.get(KEY, []);
-let cfg = Object.assign({ cur: '¥', theme: 'auto', lastLoc: '', lastStake: '' }, store.get(CFG, {}));
-let live = store.get(LIVE, null);
-const saveAll = () => { store.set(KEY, sessions); store.set(CFG, cfg); store.set(LIVE, live); };
+let cfg = Object.assign({ cur: '¥', theme: 'auto' }, store.get(CFG, {}));
+const save = () => { store.set(KEY, sessions); store.set(CFG, cfg); };
 
-/* ---------- helpers ---------- */
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = n => String(n).padStart(2, '0');
 const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 const today = () => ymd(new Date());
 const WD = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-const parseD = s => new Date(s + 'T00:00:00');
-const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
-const profit = s => (+s.cashOut || 0) - (+s.buyIn || 0);
+const uid = () => crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2);
+// amount = 本场输赢；兼容旧版 buyIn/cashOut 记录
+const amt = s => s.amount != null ? +s.amount : (+s.cashOut || 0) - (+s.buyIn || 0);
 const sum = (a, f) => a.reduce((t, x) => t + f(x), 0);
-const sgnCls = n => n > 0 ? 'win' : n < 0 ? 'loss' : 'even';
-function money(n, sign = false) {
-  const r = Math.round((+n || 0) * 100) / 100;
-  const abs = Math.abs(r).toLocaleString('zh-CN', { maximumFractionDigits: 2 });
-  return (r < 0 ? '−' : sign && r > 0 ? '+' : '') + cfg.cur + abs;
-}
-function short(n) {
-  const a = Math.abs(n), s = n < 0 ? '−' : '';
-  if (a >= 10000) return s + cfg.cur + (a / 10000).toFixed(a >= 100000 ? 0 : 1) + '万';
-  return s + cfg.cur + Math.round(a).toLocaleString('zh-CN');
-}
-const fmtH = h => h ? (Math.round(h * 10) / 10) + 'h' : '';
-let toastT;
-function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2200); }
+const cls = n => n > 0 ? 'win' : n < 0 ? 'loss' : 'sub';
+const num = n => Math.abs(Math.round(n * 100) / 100).toLocaleString('zh-CN', { maximumFractionDigits: 2 });
+const money = (n, sign = true) => (n < 0 ? '−' : sign && n > 0 ? '+' : '') + cfg.cur + num(n);
+const short = n => { const a = Math.abs(n); return (n < 0 ? '−' : '') + (a >= 10000 ? (a / 10000).toFixed(1).replace(/\.0$/, '') + '万' : Math.round(a).toLocaleString('zh-CN')); };
+let tt; const toast = m => { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 2000); };
 const sorted = () => [...sessions].sort((a, b) => a.date.localeCompare(b.date) || (a.created || 0) - (b.created || 0));
+const applyTheme = () => cfg.theme === 'auto' ? document.documentElement.removeAttribute('data-theme') : document.documentElement.setAttribute('data-theme', cfg.theme);
 
-function applyTheme() {
-  const r = document.documentElement;
-  if (cfg.theme === 'auto') r.removeAttribute('data-theme'); else r.setAttribute('data-theme', cfg.theme);
+let tab = 'home', period = 'all';
+function inPeriod(s) {
+  if (period === 'all') return true;
+  if (period === 'month') return s.date.slice(0, 7) === today().slice(0, 7);
+  if (period === 'year') return s.date.slice(0, 4) === today().slice(0, 4);
+  const d = new Date(); d.setDate(d.getDate() - (period === '30' ? 30 : 90)); return s.date >= ymd(d);
 }
 
-/* ---------- stats ---------- */
 function stats(list) {
-  const n = list.length, total = sum(list, profit);
-  const wins = list.filter(s => profit(s) > 0).length;
-  const timed = list.filter(s => +s.hours > 0);
-  const hrs = sum(timed, s => +s.hours), hp = sum(timed, profit);
-  const buy = sum(list, s => +s.buyIn || 0);
-  const ps = list.map(profit);
-  let bestRun = 0, worstRun = 0, run = 0;
-  for (const p of ps) {
-    if (p > 0) run = run > 0 ? run + 1 : 1; else if (p < 0) run = run < 0 ? run - 1 : -1; else run = 0;
-    bestRun = Math.max(bestRun, run); worstRun = Math.min(worstRun, run);
-  }
-  let cur = 0;
-  for (let i = ps.length - 1; i >= 0; i--) { const g = Math.sign(ps[i]); if (!g || (cur && Math.sign(cur) !== g)) break; cur += g; }
-  return { n, total, wins, winRate: n ? wins / n : 0, hours: sum(list, s => +s.hours || 0), hourly: hrs ? hp / hrs : null,
-    avg: n ? total / n : 0, roi: buy ? total / buy : null, best: n ? Math.max(...ps) : 0, worst: n ? Math.min(...ps) : 0,
-    bestRun, worstRun: -worstRun, streak: cur };
+  const v = list.map(amt), n = v.length, total = v.reduce((a, b) => a + b, 0);
+  const w = v.filter(x => x > 0), l = v.filter(x => x < 0);
+  let run = 0, bestRun = 0, worstRun = 0;
+  for (const x of v) { run = x > 0 ? (run > 0 ? run + 1 : 1) : x < 0 ? (run < 0 ? run - 1 : -1) : 0; bestRun = Math.max(bestRun, run); worstRun = Math.min(worstRun, run); }
+  let peak = 0, acc = 0, dd = 0; for (const x of v) { acc += x; peak = Math.max(peak, acc); dd = Math.min(dd, acc - peak); }
+  const mean = n ? total / n : 0, sd = n > 1 ? Math.sqrt(v.reduce((a, x) => a + (x - mean) ** 2, 0) / (n - 1)) : 0;
+  return { n, total, wins: w.length, losses: l.length, rate: n ? w.length / n : 0, mean, sd,
+    avgWin: w.length ? sum(w, x => x) / w.length : 0, avgLoss: l.length ? sum(l, x => x) / l.length : 0,
+    best: n ? Math.max(...v) : 0, worst: n ? Math.min(...v) : 0, bestRun, worstRun: -worstRun, drawdown: dd };
 }
-
-/* ---------- state ---------- */
-let tab = 'home', fType = 'all', fPeriod = 'all', liveTimer = null;
-
-function inPeriod(s, p) {
-  if (p === 'all') return true;
-  const now = new Date();
-  if (p === 'month') return s.date.slice(0, 7) === today().slice(0, 7);
-  if (p === 'year') return s.date.slice(0, 4) === String(now.getFullYear());
-  if (p === '30') { const d = new Date(); d.setDate(d.getDate() - 30); return s.date >= ymd(d); }
-  return true;
-}
-const filtered = () => sorted().filter(s => (fType === 'all' || s.type === fType) && inPeriod(s, fPeriod));
 
 /* ---------- charts ---------- */
-function spark(list) {
-  if (list.length < 2) return '';
-  let a = 0; const pts = [0, ...list.map(s => (a += profit(s)))];
-  const W = 200, H = 34, min = Math.min(...pts), max = Math.max(...pts), sp = (max - min) || 1;
-  const d = pts.map((v, i) => `${i ? 'L' : 'M'}${(i / (pts.length - 1) * W).toFixed(1)},${(3 + (H - 6) * (1 - (v - min) / sp)).toFixed(1)}`).join('');
-  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><path d="${d}" fill="none" stroke="#f4efe3" stroke-width="1.6" stroke-linejoin="round" vector-effect="non-scaling-stroke" opacity=".8"/></svg>`;
-}
-
-function curve(list) {
-  let a = 0; const pts = [0, ...list.map(s => (a += profit(s)))];
-  const W = 340, H = 180, L = 6, R = 6, T = 12, B = 22;
-  const min = Math.min(0, ...pts), max = Math.max(0, ...pts), sp = (max - min) || 1;
-  const x = i => L + (W - L - R) * (pts.length > 1 ? i / (pts.length - 1) : 0);
-  const y = v => T + (H - T - B) * (1 - (v - min) / sp);
-  const line = pts.map((v, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join('');
+let curveData = null;
+function curve(list, H = 150) {
+  let a = 0; const pts = [0, ...list.map(s => (a += amt(s)))];
+  const W = 340, T = 8, B = 8, min = Math.min(0, ...pts), max = Math.max(0, ...pts), sp = (max - min) || 1;
+  const x = i => W * (pts.length > 1 ? i / (pts.length - 1) : 0), y = v => T + (H - T - B) * (1 - (v - min) / sp);
+  const d = pts.map((v, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join('');
   const last = pts[pts.length - 1], col = last >= 0 ? 'var(--win)' : 'var(--loss)';
-  const grid = [max, (max + min) / 2, min].map(v => `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/>`).join('');
-  curve.data = { pts, list, x, y, W, H, T, B };
-  return `<svg class="chart" id="curve" viewBox="0 0 ${W} ${H}">
-    <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${last >= 0 ? 'var(--win)' : 'var(--loss)'}" stop-opacity=".28"/><stop offset="1" stop-color="${last >= 0 ? 'var(--win)' : 'var(--loss)'}" stop-opacity="0"/></linearGradient></defs>
-    ${grid}
-    <line x1="${L}" x2="${W - R}" y1="${y(0)}" y2="${y(0)}" stroke="var(--faint)" stroke-dasharray="3 4"/>
-    <path d="${line}L${x(pts.length - 1)},${y(min)}L${x(0)},${y(min)}Z" fill="url(#cg)"/>
-    <path d="${line}" fill="none" stroke="${col}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
-    <circle cx="${x(pts.length - 1)}" cy="${y(last)}" r="4.5" fill="${col}" stroke="var(--surface)" stroke-width="2"/>
-    <text x="${W - R}" y="${y(max) - 3}" text-anchor="end" font-size="10" fill="var(--muted)">${short(max)}</text>
-    ${min < 0 ? `<text x="${W - R}" y="${y(min) + 12}" text-anchor="end" font-size="10" fill="var(--muted)">${short(min)}</text>` : ''}
-    <text x="${L}" y="${H - 5}" font-size="10" fill="var(--muted)">${list[0] ? list[0].date.slice(2).replace(/-/g, '/') : ''}</text>
-    <text x="${W - R}" y="${H - 5}" text-anchor="end" font-size="10" fill="var(--muted)">${list.length ? list[list.length - 1].date.slice(2).replace(/-/g, '/') : ''}</text>
-    <g id="scrub" visibility="hidden"><line id="sx" y1="${T}" y2="${H - B}" stroke="var(--muted)" stroke-dasharray="2 3"/><circle id="sc" r="5" fill="var(--brass)" stroke="var(--surface)" stroke-width="2"/></g>
-  </svg>`;
+  curveData = { pts, list, x, y, W };
+  return `<div class="chart"><div class="scrub" id="scrub"></div>
+    <svg id="curve" viewBox="0 0 ${W} ${H}">
+      <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".16"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
+      <line x1="0" x2="${W}" y1="${y(0)}" y2="${y(0)}" stroke="var(--hair)" stroke-dasharray="2 4"/>
+      <path d="${d}L${W},${H}L0,${H}Z" fill="url(#g)"/>
+      <path d="${d}" fill="none" stroke="${col}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+      <circle cx="${x(pts.length - 1)}" cy="${y(last)}" r="3.5" fill="${col}"/>
+      <g id="sg" visibility="hidden"><line id="sl" y1="0" y2="${H}" stroke="var(--sub)" stroke-width=".8"/><circle id="sc" r="4" fill="var(--bg)" stroke="var(--ink)" stroke-width="1.5"/></g>
+    </svg>
+    <div class="cap"><span>${list[0] ? list[0].date.replace(/-/g, '.') : ''}</span><span>峰值 ${esc(cfg.cur)}${short(max)}</span><span>${list.length ? list[list.length - 1].date.replace(/-/g, '.') : ''}</span></div></div>`;
 }
 function bindCurve() {
-  const svg = $('#curve'); if (!svg || !curve.data) return;
-  const { pts, list, x, y, W } = curve.data;
-  const head = $('#curveHead'), def = head.innerHTML;
-  const move = e => {
+  const svg = $('#curve'); if (!svg) return;
+  const { pts, list, x, y, W } = curveData, tip = $('#scrub');
+  const mv = e => {
     const r = svg.getBoundingClientRect(), px = (e.clientX - r.left) / r.width * W;
-    let i = 0, best = Infinity;
-    pts.forEach((_, k) => { const d = Math.abs(x(k) - px); if (d < best) { best = d; i = k; } });
-    $('#scrub').setAttribute('visibility', 'visible');
-    $('#sx').setAttribute('x1', x(i)); $('#sx').setAttribute('x2', x(i));
+    const i = Math.max(0, Math.min(pts.length - 1, Math.round(px / W * (pts.length - 1))));
+    $('#sg').setAttribute('visibility', 'visible');
+    ['x1', 'x2'].forEach(k => $('#sl').setAttribute(k, x(i)));
     $('#sc').setAttribute('cx', x(i)); $('#sc').setAttribute('cy', y(pts[i]));
     const s = list[i - 1];
-    head.innerHTML = `<div><div class="v num ${sgnCls(pts[i])}">${money(pts[i], true)}</div><div class="d">${s ? `第 ${i} 场 · ${s.date} · 本场 <span class="${sgnCls(profit(s))}">${money(profit(s), true)}</span>` : '起点'}</div></div>`;
+    tip.textContent = s ? `${s.date.slice(5).replace('-', '/')} ${s.location || ''} ${money(amt(s))} · 累计 ${money(pts[i])}` : '起点';
+    tip.style.opacity = 1;
+    const half = tip.offsetWidth / 2;
+    tip.style.left = Math.max(half, Math.min(r.width - half, x(i) / W * r.width)) + 'px';
   };
-  const end = () => { $('#scrub').setAttribute('visibility', 'hidden'); head.innerHTML = def; };
-  svg.addEventListener('pointerdown', move); svg.addEventListener('pointermove', move);
-  svg.addEventListener('pointerleave', end); svg.addEventListener('pointerup', e => { if (e.pointerType !== 'mouse') end(); });
+  const end = () => { $('#sg').setAttribute('visibility', 'hidden'); tip.style.opacity = 0; };
+  svg.addEventListener('pointerdown', mv); svg.addEventListener('pointermove', mv);
+  svg.addEventListener('pointerleave', end); svg.addEventListener('pointerup', e => e.pointerType !== 'mouse' && end());
 }
 
-function monthBars(list) {
-  const m = {};
-  list.forEach(s => { const k = s.date.slice(0, 7); m[k] = (m[k] || 0) + profit(s); });
-  const keys = Object.keys(m).sort().slice(-12);
-  if (!keys.length) return '';
-  const W = 340, H = 170, T = 16, B = 22, gap = 6;
-  const vals = keys.map(k => m[k]);
+function bars(list) {
+  const m = {}; list.forEach(s => { const k = s.date.slice(0, 7); m[k] = (m[k] || 0) + amt(s); });
+  const keys = Object.keys(m).sort().slice(-12); if (!keys.length) return '';
+  const W = 340, H = 130, T = 14, B = 20, vals = keys.map(k => m[k]);
   const max = Math.max(0, ...vals), min = Math.min(0, ...vals), sp = (max - min) || 1;
-  const y = v => T + (H - T - B) * (1 - (v - min) / sp);
-  const bw = Math.min(30, (W - gap * (keys.length - 1)) / keys.length);
-  const total = keys.length * bw + (keys.length - 1) * gap, x0 = (W - total) / 2;
-  const bars = keys.map((k, i) => {
-    const v = m[k], x = x0 + i * (bw + gap), y1 = y(Math.max(v, 0)), h = Math.max(1.5, Math.abs(y(v) - y(0)));
-    const col = v >= 0 ? 'var(--win)' : 'var(--loss)';
-    const lblY = v >= 0 ? y1 - 4 : y(0) + h + 10;
-    return `<rect x="${x}" y="${y1}" width="${bw}" height="${h}" rx="3" fill="${col}" opacity=".85"/>
-      ${keys.length <= 8 ? `<text x="${x + bw / 2}" y="${lblY}" text-anchor="middle" font-size="9" fill="var(--muted)">${short(v).replace(cfg.cur, '')}</text>` : ''}
-      <text x="${x + bw / 2}" y="${H - 6}" text-anchor="middle" font-size="10" fill="var(--muted)">${+k.slice(5)}月</text>`;
-  }).join('');
-  return `<svg class="chart" viewBox="0 0 ${W} ${H}"><line x1="0" x2="${W}" y1="${y(0)}" y2="${y(0)}" stroke="var(--line)"/>${bars}</svg>`;
-}
-
-function ring(rate) {
-  const C = 2 * Math.PI * 34, on = C * rate;
-  return `<svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="34" fill="none" stroke="var(--loss-soft)" stroke-width="10"/>
-    <circle cx="42" cy="42" r="34" fill="none" stroke="var(--win)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${on} ${C}" transform="rotate(-90 42 42)"/>
-    <text x="42" y="47" text-anchor="middle" font-size="17" font-weight="700" fill="var(--text)" font-family="Barlow Condensed,sans-serif">${Math.round(rate * 100)}%</text></svg>`;
+  const y = v => T + (H - T - B) * (1 - (v - min) / sp), slot = W / keys.length, bw = Math.min(18, slot * .5);
+  return `<div class="chart" style="margin-top:14px"><svg viewBox="0 0 ${W} ${H}"><line x1="0" x2="${W}" y1="${y(0)}" y2="${y(0)}" stroke="var(--hair)"/>
+    ${keys.map((k, i) => { const v = m[k], cx = slot * i + slot / 2, top = y(Math.max(v, 0)), h = Math.max(1, Math.abs(y(v) - y(0)));
+      return `<rect x="${cx - bw / 2}" y="${top}" width="${bw}" height="${h}" rx="2" fill="${v >= 0 ? 'var(--win)' : 'var(--loss)'}"/>
+      ${keys.length <= 7 ? `<text x="${cx}" y="${v >= 0 ? top - 4 : top + h + 10}" text-anchor="middle" font-size="9" fill="var(--sub)">${short(v)}</text>` : ''}
+      <text x="${cx}" y="${H - 4}" text-anchor="middle" font-size="9.5" fill="var(--sub)">${+k.slice(5)}月</text>`; }).join('')}</svg></div>`;
 }
 
 /* ---------- views ---------- */
-function itemHTML(s) {
-  const p = profit(s), d = parseD(s.date);
-  const sub = [s.type === 'tour' ? `报名 ${money(s.buyIn)}` : `买入 ${money(s.buyIn)}`, s.type === 'tour' && s.rank ? `名次 ${esc(s.rank)}` : `${s.type === 'tour' ? '奖金' : '带出'} ${money(s.cashOut)}`, fmtH(+s.hours)].filter(Boolean).join(' · ');
-  return `<button class="item" data-edit="${s.id}">
-    <div class="date"><b>${d.getDate()}</b><span>${WD[d.getDay()]}</span></div>
-    <div class="mid"><div class="t"><span class="tag ${s.type === 'tour' ? 'tour' : 'cash'}">${s.type === 'tour' ? '比赛' : '现金'}</span>${esc(s.location || '未填地点')}${s.stake ? ` · ${esc(s.stake)}` : ''}</div>
-    <div class="s">${sub}${s.note ? ' · ' + esc(s.note) : ''}</div></div>
-    <div class="pill ${sgnCls(p)}">${money(p, true)}</div></button>`;
+function row(s) {
+  const d = new Date(s.date + 'T00:00:00'), v = amt(s);
+  return `<button class="r" data-edit="${esc(s.id)}"><div class="d"><b>${d.getDate()}</b>${d.getMonth() + 1}月 · ${WD[d.getDay()].slice(1)}</div>
+    <div class="m"><div class="t">${esc(s.location || '未填地点')}</div>${s.note ? `<div class="n">${esc(s.note)}</div>` : ''}</div>
+    <div class="v ${cls(v)}">${money(v)}</div></button>`;
 }
-
-function emptyHTML(msg) {
-  return `<div class="empty"><div class="suit">♠ ♥ ♣ ♦</div><p>${msg}</p>
-    <div class="actions" style="max-width:320px;margin:0 auto"><button class="btn pri" data-act="add">记第一场</button><button class="btn" data-act="sample">载入示例</button></div></div>`;
-}
-
-function liveHTML() {
-  if (!live) return `<button class="start" data-act="startLive"><div class="dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div><div><b>开始一场牌局</b><span>边打边计时，随时记录加买，结束时一键结算</span></div></button>`;
-  const buy = sum(live.buys, b => +b);
-  return `<div class="live">
-    <div class="live-top"><span class="pulse">进行中</span><span class="muted" style="font-size:12px">${esc(live.location || '')}${live.stake ? ' · ' + esc(live.stake) : ''}</span></div>
-    <div class="clock" id="liveClock">00:00:00</div>
-    <div class="info">已买入 <b class="num" style="font-size:17px;color:var(--text)">${money(buy)}</b>（${live.buys.length} 次）</div>
-    <div class="row3"><button class="btn" data-act="liveCancel">放弃</button><button class="btn" data-act="liveRebuy">加买</button><button class="btn pri" data-act="liveEnd">结束结算</button></div>
-  </div>`;
-}
+const totalHTML = n => `<div class="total ${cls(n)}">${n < 0 ? '−' : n > 0 ? '+' : ''}<span class="cur">${esc(cfg.cur)}</span>${num(n)}</div>`;
+const emptyHTML = () => `<div class="empty fade"><div class="suits">♠♥♣♦</div>
+  <p>每打完一场，记下输赢和地点。<br>时间久了，数字会告诉你答案。</p>
+  <button class="btn" data-act="add">记第一笔</button><br><button class="link" data-act="sample">先看看示例</button></div>`;
 
 function homeView() {
-  const all = sorted(), st = stats(all);
-  const month = all.filter(s => inPeriod(s, 'month')), ms = stats(month);
-  $('#pageTitle').textContent = '牌局本';
-  $('#pageSub').textContent = new Date().toLocaleDateString('zh-CN', { month: 'long', day: 'numeric', weekday: 'long' });
-  const hero = `<div class="table">
-    <div class="lbl">总 盈 亏</div>
-    <div class="big ${st.total > 0 ? 'pos' : st.total < 0 ? 'neg' : ''}">${money(st.total, true)}</div>
-    <div class="meta"><div><b>${st.n}</b>场次</div><div><b>${st.n ? Math.round(st.winRate * 100) + '%' : '–'}</b>胜率</div><div><b>${st.hourly != null ? money(st.hourly, true) : '–'}</b>时薪</div></div>
-    ${spark(all)}
-  </div>`;
-  if (!all.length) return hero + `<section>${liveHTML()}</section>` + emptyHTML('还没有记录。<br>打完一场，记下来，长期看才知道自己是不是赢家。');
-  return hero + `<section>${liveHTML()}</section>
-  <section><div class="sec-h"><h2>本月</h2><span class="muted" style="font-size:12px">${month.length} 场</span></div>
-    <div class="kpis">
-      <div class="kpi"><div class="k">盈亏</div><div class="v ${sgnCls(ms.total)}">${money(ms.total, true)}</div></div>
-      <div class="kpi"><div class="k">胜率</div><div class="v">${ms.n ? Math.round(ms.winRate * 100) + '%' : '–'}</div></div>
-      <div class="kpi"><div class="k">时长</div><div class="v">${ms.hours ? fmtH(ms.hours) : '–'}</div></div>
-    </div></section>
-  <section><div class="sec-h"><h2>最近牌局</h2><button class="link" data-tab="list">全部 ›</button></div>
-    <div class="list">${all.slice(-5).reverse().map(itemHTML).join('')}</div></section>
-  ${st.streak ? `<p class="note" style="text-align:center">当前 ${st.streak > 0 ? `<b class="win">${st.streak} 连胜</b>` : `<b class="loss">${-st.streak} 连败</b>`}</p>` : ''}`;
-}
-
-function filtersHTML() {
-  const seg = (attr, cur, opts) => `<div class="seg">${opts.map(([k, v]) => `<button data-${attr}="${k}" class="${cur === k ? 'on' : ''}">${v}</button>`).join('')}</div>`;
-  return `<div class="filters">${seg('ft', fType, [['all', '全部'], ['cash', '现金局'], ['tour', '比赛']])}
-    ${seg('fp', fPeriod, [['all', '全部'], ['30', '近30天'], ['month', '本月'], ['year', '今年']])}</div>`;
+  if (!sessions.length) return emptyHTML();
+  const all = sorted(), st = stats(all), mo = stats(all.filter(s => s.date.slice(0, 7) === today().slice(0, 7)));
+  return `<div class="fade"><div class="hero"><div class="eyebrow">累计盈亏</div>${totalHTML(st.total)}
+    <div class="trio"><div><b class="tn">${st.n}</b>场次</div><div><b class="tn">${Math.round(st.rate * 100)}%</b>胜率</div><div><b class="tn ${cls(mo.total)}">${mo.n ? money(mo.total) : '–'}</b>本月</div></div></div>
+    ${curve(all)}
+    <h2>最近<button data-tab="list">全部 →</button></h2>
+    <div class="rows">${all.slice(-6).reverse().map(row).join('')}</div></div>`;
 }
 
 function listView() {
-  $('#pageTitle').textContent = '全部记录'; $('#pageSub').textContent = `共 ${sessions.length} 场`;
-  if (!sessions.length) return emptyHTML('还没有记录');
-  const list = filtered().reverse();
-  if (!list.length) return filtersHTML() + `<div class="empty"><p>这个筛选下没有记录</p></div>`;
-  const groups = {};
-  list.forEach(s => (groups[s.date.slice(0, 7)] ||= []).push(s));
-  return filtersHTML() + Object.entries(groups).map(([m, arr]) => {
-    const t = sum(arr, profit);
-    return `<div class="month-h"><b>${m.slice(0, 4)}年${+m.slice(5)}月 <span class="muted" style="font-size:12px;font-family:var(--ui);font-weight:500">${arr.length} 场</span></b><span class="${sgnCls(t)}">${money(t, true)}</span></div>
-      <div class="list">${arr.map(itemHTML).join('')}</div>`;
-  }).join('');
-}
-
-function breakdown(list, key, fallback) {
-  const g = {};
-  list.forEach(s => { const k = s[key] || fallback; (g[k] ||= []).push(s); });
-  const rows = Object.entries(g).map(([k, a]) => [k, a.length, sum(a, profit)]).sort((a, b) => b[2] - a[2]);
-  return `<table class="brk">${rows.map(([k, n, p]) => `<tr><td>${esc(k)}</td><td class="c">${n} 场</td><td class="r ${sgnCls(p)}">${money(p, true)}</td></tr>`).join('')}</table>`;
+  if (!sessions.length) return emptyHTML();
+  const g = {}; sorted().reverse().forEach(s => (g[s.date.slice(0, 7)] ||= []).push(s));
+  return `<div class="fade">${Object.entries(g).map(([m, a]) => { const t = sum(a, amt);
+    return `<div class="mh"><span>${m.slice(0, 4)}.${m.slice(5)}<small>${a.length} 场</small></span><span class="${cls(t)}">${money(t)}</span></div>
+      <div class="rows">${a.map(row).join('')}</div>`; }).join('')}</div>`;
 }
 
 function statsView() {
-  $('#pageTitle').textContent = '数据统计'; $('#pageSub').textContent = '按场次累计';
-  if (!sessions.length) return emptyHTML('有了记录才有统计');
-  const list = filtered(), st = stats(list);
-  if (!list.length) return filtersHTML() + `<div class="empty"><p>这个筛选下没有记录</p></div>`;
-  const k = (l, v, c = '') => `<div class="kpi"><div class="k">${l}</div><div class="v ${c}">${v}</div></div>`;
-  return filtersHTML() + `
-  <section><div class="card"><div class="chart-head" id="curveHead"><div><div class="v num ${sgnCls(st.total)}">${money(st.total, true)}</div><div class="d">累计盈亏 · 按住曲线查看每一场</div></div></div>
-    <div class="chart-wrap">${curve(list)}</div></div></section>
-  <section><div class="kpis">
-    ${k('场次', st.n)}${k('时薪', st.hourly != null ? money(st.hourly, true) : '–', st.hourly != null ? sgnCls(st.hourly) : '')}${k('场均', money(st.avg, true), sgnCls(st.avg))}
-    ${k('回报率', st.roi != null ? Math.round(st.roi * 100) + '%' : '–', st.roi != null ? sgnCls(st.roi) : '')}${k('单场最佳', money(st.best, true), sgnCls(st.best))}${k('单场最差', money(st.worst, true), sgnCls(st.worst))}
-  </div></section>
-  <section><div class="card ring">${ring(st.winRate)}<div class="lines">
-    <div>赢 <b>${st.wins}</b> 场 · 输 <b>${list.filter(s => profit(s) < 0).length}</b> 场</div>
-    <div>最长连胜 <b class="win">${st.bestRun}</b> · 最长连败 <b class="loss">${st.worstRun}</b></div>
-    <div>总时长 <b>${st.hours ? fmtH(st.hours) : '–'}</b></div></div></div></section>
-  <section><div class="sec-h"><h2>按月</h2><span class="bars-legend">最近 12 个月</span></div><div class="card">${monthBars(list)}</div></section>
-  <section><div class="sec-h"><h2>按地点</h2></div><div class="card">${breakdown(list, 'location', '未填地点')}</div></section>
-  <section><div class="sec-h"><h2>按级别</h2></div><div class="card">${breakdown(list, 'stake', '未填级别')}</div></section>`;
-}
-
-function setView() {
-  $('#pageTitle').textContent = '设置'; $('#pageSub').textContent = '';
-  const themes = { auto: '跟随系统', dark: '深色', light: '浅色' };
-  return `<div class="settings">
-  <section style="margin-top:0"><div class="sec-h"><h2>显示</h2></div><div class="grp">
-    <button class="opt" data-act="cur">货币符号<span>${esc(cfg.cur)}</span></button>
-    <button class="opt" data-act="theme">外观<span>${themes[cfg.theme]}</span></button>
-  </div></section>
-  <section><div class="sec-h"><h2>数据备份</h2></div><div class="grp">
-    <button class="opt" data-act="copyJson">复制备份到剪贴板<span>${sessions.length} 场</span></button>
-    <button class="opt" data-act="pasteJson">粘贴备份导入<span>›</span></button>
-    <button class="opt" data-act="dlJson">下载备份文件 (JSON)<span>›</span></button>
-    <button class="opt" data-act="upJson">从文件导入<span>›</span></button>
-    <button class="opt" data-act="dlCsv">导出表格 (CSV)<span>›</span></button>
-  </div>
-  <p class="note">记录只保存在这台手机的浏览器里。清理浏览器数据或换手机前，记得先复制或下载备份。</p></section>
-  <section><div class="grp"><button class="opt red" data-act="clear">清空所有记录</button></div></section>
-  <p class="note">添加到主屏幕：iPhone 用 Safari 打开 → 分享 → 添加到主屏幕；安卓用 Chrome 菜单 → 添加到主屏幕。之后像 App 一样全屏打开，没网也能用。</p>
-  </div>`;
+  if (!sessions.length) return emptyHTML();
+  const P = [['all', '全部'], ['year', '今年'], ['90', '近 90 天'], ['30', '近 30 天'], ['month', '本月']];
+  const list = sorted().filter(inPeriod), st = stats(list);
+  const head = `<div class="periods">${P.map(([k, v]) => `<button data-period="${k}" class="${period === k ? 'on' : ''}">${v}</button>`).join('')}</div>`;
+  if (!list.length) return head + `<div class="empty"><p>这段时间没有记录</p></div>`;
+  const kv = (k, v, c = '') => `<div><span>${k}</span><b class="${c}">${v}</b></div>`;
+  const locs = {}; list.forEach(s => (locs[s.location || '未填地点'] ||= []).push(amt(s)));
+  const L = Object.entries(locs).map(([k, v]) => ({ k, n: v.length, t: v.reduce((a, b) => a + b, 0), w: v.filter(x => x > 0).length })).sort((a, b) => b.t - a.t);
+  const maxAbs = Math.max(...L.map(o => Math.abs(o.t)), 1);
+  const wd = Array.from({ length: 7 }, () => []); list.forEach(s => wd[new Date(s.date + 'T00:00:00').getDay()].push(amt(s)));
+  return `<div class="fade">${head}
+    <div class="hero" style="padding-top:30px"><div class="eyebrow">区间盈亏</div>${totalHTML(st.total)}</div>
+    ${curve(list, 120)}
+    <h2>核心数据</h2><div class="kv">
+      ${kv('场次', st.n)}${kv('胜率', `${Math.round(st.rate * 100)}% · ${st.wins} 胜 ${st.losses} 负`)}
+      ${kv('场均', money(st.mean), cls(st.mean))}${kv('赢的场次平均赢', money(st.avgWin), 'win')}${kv('输的场次平均输', money(st.avgLoss), 'loss')}
+      ${kv('盈亏比', st.avgLoss ? (st.avgWin / -st.avgLoss).toFixed(2) : '–')}
+      ${kv('单场最佳', money(st.best), cls(st.best))}${kv('单场最差', money(st.worst), cls(st.worst))}
+      ${kv('最长连胜 / 连败', `${st.bestRun} / ${st.worstRun}`)}${kv('最大回撤', money(st.drawdown), st.drawdown < 0 ? 'loss' : '')}
+      ${kv('单场波动（标准差）', esc(cfg.cur) + num(st.sd))}
+    </div>
+    <h2>按地点</h2><div>${L.map(o => `<div class="loc"><div class="top"><span>${esc(o.k)}</span><b class="${cls(o.t)}">${money(o.t)}</b></div>
+      <div class="meta">${o.n} 场 · 胜率 ${Math.round(o.w / o.n * 100)}% · 场均 ${money(o.t / o.n)}</div>
+      <div class="bar"><i style="width:${Math.abs(o.t) / maxAbs * 100}%;background:${o.t >= 0 ? 'var(--win)' : 'var(--loss)'}"></i></div></div>`).join('')}</div>
+    <h2>按月</h2>${bars(list)}
+    <h2>按星期</h2><div class="kv">${[1, 2, 3, 4, 5, 6, 0].filter(i => wd[i].length).map(i => { const t = wd[i].reduce((a, b) => a + b, 0);
+      return kv(`${WD[i]} · ${wd[i].length} 场`, money(t), cls(t)); }).join('')}</div></div>`;
 }
 
 function render() {
-  clearInterval(liveTimer);
-  document.querySelectorAll('nav .tab').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
-  const v = { home: homeView, list: listView, stats: statsView, set: setView }[tab]();
-  $('#view').innerHTML = v;
-  if (tab === 'stats') bindCurve();
-  if (live && $('#liveClock')) {
-    const tick = () => { const s = Math.max(0, Math.floor((Date.now() - live.start) / 1000)); const c = $('#liveClock'); if (c) c.textContent = `${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}`; };
-    tick(); liveTimer = setInterval(tick, 1000);
-  }
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  $('#view').innerHTML = ({ home: homeView, list: listView, stats: statsView })[tab]();
+  bindCurve();
 }
 
 /* ---------- sheets ---------- */
-function openSheet(html) {
-  $('#sheet').innerHTML = '<div class="grab"></div>' + html;
-  $('#scrim').classList.add('show'); $('#sheet').classList.add('show');
-}
+function openSheet(html) { $('#sheet').innerHTML = '<div class="grab"></div>' + html; $('#scrim').classList.add('show'); $('#sheet').classList.add('show'); }
 function closeSheet() { $('#scrim').classList.remove('show'); $('#sheet').classList.remove('show'); }
-$('#scrim').addEventListener('click', closeSheet);
+$('#scrim').onclick = closeSheet;
+const ask = (title, msg, ok) => new Promise(res => {
+  openSheet(`<div class="sh"><h3>${title}</h3></div><p class="msg">${msg}</p><div class="foot"><button class="btn ghost" id="aN">取消</button><button class="btn" style="background:var(--loss);color:#fff" id="aY">${ok}</button></div>`);
+  $('#aN').onclick = () => { closeSheet(); res(false); }; $('#aY').onclick = () => { closeSheet(); res(true); };
+});
 
-function ask(title, msg, ok = '确定', danger = false) {
-  return new Promise(res => {
-    openSheet(`<h3>${title}</h3><p class="confirm-msg">${msg}</p><div class="actions"><button class="btn" id="cNo">取消</button><button class="btn ${danger ? 'danger' : 'pri'}" style="flex:1" id="cYes">${ok}</button></div>`);
-    $('#cNo').onclick = () => { closeSheet(); res(false); };
-    $('#cYes').onclick = () => { closeSheet(); res(true); };
-  });
-}
-
-function sessionForm(id, preset) {
-  const s = sessions.find(x => x.id === id) || Object.assign({ type: 'cash', date: today(), location: cfg.lastLoc, stake: cfg.lastStake, buyIn: '', cashOut: '', hours: '', note: '', rank: '' }, preset);
-  const locs = [...new Set(sessions.map(x => x.location).filter(Boolean))];
-  const stakes = [...new Set(sessions.map(x => x.stake).filter(Boolean))];
-  openSheet(`<h3>${id ? '编辑牌局' : preset ? '结算牌局' : '记一场'}</h3>
-    <div class="field"><div class="seg" id="fType"><button data-v="cash" class="${s.type !== 'tour' ? 'on' : ''}">现金局</button><button data-v="tour" class="${s.type === 'tour' ? 'on' : ''}">比赛</button></div></div>
-    <div class="two">
-      <div class="field"><label for="fDate">日期</label><input type="date" id="fDate" value="${s.date}"></div>
-      <div class="field"><label for="fHours">时长（小时）</label><input type="number" inputmode="decimal" step="0.25" min="0" id="fHours" value="${s.hours || ''}" placeholder="4"></div>
-    </div>
-    <div class="two">
-      <div class="field"><label for="fLoc">地点</label><input id="fLoc" list="dlLoc" value="${esc(s.location)}" placeholder="朋友家 / 俱乐部"><datalist id="dlLoc">${locs.map(l => `<option value="${esc(l)}">`).join('')}</datalist></div>
-      <div class="field"><label for="fStake" id="lStake">${s.type === 'tour' ? '赛事' : '级别（盲注）'}</label><input id="fStake" list="dlStake" value="${esc(s.stake)}" placeholder="${s.type === 'tour' ? '周赛' : '1/2'}"><datalist id="dlStake">${stakes.map(l => `<option value="${esc(l)}">`).join('')}</datalist></div>
-    </div>
-    <div class="field"><label for="fBuy" id="lBuy">${s.type === 'tour' ? '报名费合计（含重进）' : '买入合计（含加买）'}</label><input class="amt" type="number" inputmode="decimal" min="0" id="fBuy" value="${s.buyIn}" placeholder="0">
-      <div class="quick">${[100, 200, 500, 1000].map(v => `<button type="button" data-addbuy="${v}">+${v}</button>`).join('')}<button type="button" data-addbuy="0">清零</button></div></div>
-    <div class="field"><label for="fOut" id="lOut">${s.type === 'tour' ? '奖金（没进钱圈填 0）' : '最终带出（输光填 0）'}</label><input class="amt" type="number" inputmode="decimal" min="0" id="fOut" value="${s.cashOut}" placeholder="0"></div>
-    <div class="field" id="rankF" ${s.type === 'tour' ? '' : 'hidden'}><label for="fRank">名次</label><input id="fRank" value="${esc(s.rank || '')}" placeholder="如 3/120"></div>
-    <div class="field"><label for="fNote">备注</label><textarea id="fNote" rows="2" placeholder="关键手牌、对手风格、状态…">${esc(s.note)}</textarea></div>
-    <div class="result"><span>本场盈亏</span><b class="num" id="fRes"></b></div>
-    <div class="actions">${id ? '<button class="btn danger" id="fDel">删除</button>' : ''}<button class="btn" id="fCancel">取消</button><button class="btn pri" id="fSave">保存</button></div>`);
-  let type = s.type === 'tour' ? 'tour' : 'cash';
-  const upd = () => { const p = (+$('#fOut').value || 0) - (+$('#fBuy').value || 0); const r = $('#fRes'); r.textContent = money(p, true); r.className = 'num ' + sgnCls(p); };
-  $('#fBuy').oninput = upd; $('#fOut').oninput = upd; upd();
-  $('#fType').onclick = e => {
-    const b = e.target.closest('button'); if (!b) return; type = b.dataset.v;
-    $('#fType').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
-    $('#lBuy').textContent = type === 'tour' ? '报名费合计（含重进）' : '买入合计（含加买）';
-    $('#lOut').textContent = type === 'tour' ? '奖金（没进钱圈填 0）' : '最终带出（输光填 0）';
-    $('#lStake').textContent = type === 'tour' ? '赛事' : '级别（盲注）';
-    $('#rankF').hidden = type !== 'tour';
+function form(id) {
+  const s = sessions.find(x => x.id === id), v = s ? amt(s) : null;
+  let sign = v != null && v < 0 ? -1 : 1;
+  const recent = []; sorted().reverse().forEach(x => x.location && !recent.includes(x.location) && recent.push(x.location));
+  openSheet(`<div class="sh"><h3>${s ? '修改记录' : '记一笔'}</h3><button id="fX">取消</button></div>
+    <div class="wl" id="wl"><button data-v="1">赢了</button><button data-v="-1">输了</button></div>
+    <div class="amt" id="amtBox"><span>${esc(cfg.cur)}</span><input id="fA" type="number" inputmode="decimal" min="0" placeholder="0" value="${v != null ? Math.abs(v) : ''}" aria-label="金额"></div>
+    <div class="field"><label for="fL">地点</label><input id="fL" value="${esc(s ? s.location : '')}" placeholder="在哪里打的" autocomplete="off"></div>
+    ${recent.length ? `<div class="chips">${recent.slice(0, 6).map(l => `<button type="button" data-loc="${esc(l)}">${esc(l)}</button>`).join('')}</div>` : ''}
+    <div class="field"><label for="fD">日期</label><input id="fD" type="date" value="${s ? s.date : today()}"></div>
+    <div class="field last"><label for="fN">备注</label><input id="fN" value="${esc(s ? s.note : '')}" placeholder="选填" autocomplete="off"></div>
+    <div class="foot">${s ? '<button class="del" id="fDel">删除</button>' : ''}<button class="btn" id="fS">保存</button></div>`);
+  const paint = () => { $('#wl').querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.v === sign)); $('#amtBox').className = 'amt ' + (sign > 0 ? 'win' : 'loss'); };
+  paint();
+  $('#wl').onclick = e => { const b = e.target.closest('button'); if (b) { sign = +b.dataset.v; paint(); } };
+  $('#sheet').querySelectorAll('[data-loc]').forEach(b => b.onclick = () => { $('#fL').value = b.dataset.loc; });
+  $('#fX').onclick = closeSheet;
+  if (!s) setTimeout(() => $('#fA').focus(), 350);
+  $('#fS').onclick = () => {
+    const a = parseFloat($('#fA').value);
+    if (isNaN(a)) { toast('请输入金额'); $('#fA').focus(); return; }
+    const rec = { id: s ? s.id : uid(), created: s ? s.created : Date.now(), date: $('#fD').value || today(),
+      location: $('#fL').value.trim(), amount: sign * Math.abs(a), note: $('#fN').value.trim() };
+    const i = sessions.findIndex(x => x.id === rec.id); if (i >= 0) sessions[i] = rec; else sessions.push(rec);
+    save(); closeSheet(); render(); toast(`已记录 ${money(rec.amount)}`);
   };
-  $('#sheet').querySelectorAll('[data-addbuy]').forEach(b => b.onclick = () => { const v = +b.dataset.addbuy; $('#fBuy').value = v ? (+$('#fBuy').value || 0) + v : ''; upd(); });
-  $('#fCancel').onclick = closeSheet;
-  $('#fSave').onclick = () => {
-    if ($('#fBuy').value === '' || $('#fOut').value === '') { toast(type === 'tour' ? '请填写报名费和奖金' : '请填写买入和带出'); return; }
-    const rec = { id: s.id || uid(), created: s.created || Date.now(), date: $('#fDate').value || today(), type,
-      location: $('#fLoc').value.trim(), stake: $('#fStake').value.trim(), buyIn: +$('#fBuy').value, cashOut: +$('#fOut').value,
-      hours: +$('#fHours').value || 0, note: $('#fNote').value.trim(), rank: type === 'tour' ? $('#fRank').value.trim() : '' };
-    cfg.lastLoc = rec.location; cfg.lastStake = rec.stake;
-    const i = sessions.findIndex(x => x.id === rec.id);
-    if (i >= 0) sessions[i] = rec; else sessions.push(rec);
-    if (preset) live = null;
-    saveAll(); closeSheet(); render();
-    toast(`已保存 ${money(profit(rec), true)}`);
-  };
-  if (id) $('#fDel').onclick = async () => {
-    if (await ask('删除这场记录？', `${s.date} ${esc(s.location || '')} ${money(profit(s), true)}，删除后无法恢复。`, '删除', true)) {
-      sessions = sessions.filter(x => x.id !== id); saveAll(); render(); toast('已删除');
-    }
+  if (s) $('#fDel').onclick = async () => {
+    if (await ask('删除这条记录', `${s.date} · ${esc(s.location || '未填地点')} · ${money(amt(s))}<br>删除后无法恢复。`, '删除')) { sessions = sessions.filter(x => x.id !== id); save(); render(); toast('已删除'); }
   };
 }
 
-function startLiveForm() {
-  openSheet(`<h3>开始牌局</h3>
-    <div class="two">
-      <div class="field"><label for="lLoc">地点</label><input id="lLoc" value="${esc(cfg.lastLoc)}" placeholder="朋友家"></div>
-      <div class="field"><label for="lStk">级别</label><input id="lStk" value="${esc(cfg.lastStake)}" placeholder="1/2"></div>
-    </div>
-    <div class="field"><label for="lBuy">首次买入</label><input class="amt" type="number" inputmode="decimal" id="lBuy" placeholder="0">
-      <div class="quick">${[200, 500, 1000, 2000].map(v => `<button type="button" data-set="${v}">${v}</button>`).join('')}</div></div>
-    <div class="actions"><button class="btn" id="lNo">取消</button><button class="btn pri" id="lGo">开始计时</button></div>`);
-  $('#sheet').querySelectorAll('[data-set]').forEach(b => b.onclick = () => { $('#lBuy').value = b.dataset.set; });
-  $('#lNo').onclick = closeSheet;
-  $('#lGo').onclick = () => {
-    const b = +$('#lBuy').value; if (!b) { toast('请填写买入金额'); return; }
-    live = { start: Date.now(), location: $('#lLoc').value.trim(), stake: $('#lStk').value.trim(), buys: [b] };
-    cfg.lastLoc = live.location; cfg.lastStake = live.stake;
-    saveAll(); closeSheet(); render(); toast('开始计时，祝好运');
-  };
+const backup = () => JSON.stringify({ app: 'poker-log', version: 2, exported: new Date().toISOString(), sessions });
+function settings() {
+  const th = [['auto', '自动'], ['light', '浅色'], ['dark', '深色']];
+  openSheet(`<div class="sh"><h3>设置</h3><button id="sX">完成</button></div><div class="set">
+    <div class="item">外观<div class="seg">${th.map(([k, v]) => `<button data-th="${k}" class="${cfg.theme === k ? 'on' : ''}">${v}</button>`).join('')}</div></div>
+    <div class="item">货币<div class="seg">${['¥', '$', 'HK$', '€'].map(c => `<button data-cur="${c}" class="${cfg.cur === c ? 'on' : ''}">${c}</button>`).join('')}</div></div>
+    <button class="item" id="sCopy">复制备份<span>${sessions.length} 条 →</span></button>
+    <button class="item" id="sPaste">粘贴恢复<span>→</span></button>
+    <button class="item" id="sDl">下载备份文件<span>→</span></button>
+    <button class="item" id="sUp">从文件恢复<span>→</span></button>
+    <button class="item" id="sCsv">导出 CSV 表格<span>→</span></button>
+    <button class="item danger" id="sClr">清空全部记录</button>
+    <p class="note">记录只保存在本机浏览器里。换手机或清理浏览器前，请先复制备份，存到备忘录或发给自己。<br>
+    iPhone：Safari 打开 → 分享 → 添加到主屏幕，即可像 App 一样使用。</p></div>`);
+  $('#sX').onclick = closeSheet;
+  $('#sheet').querySelectorAll('[data-th]').forEach(b => b.onclick = () => { cfg.theme = b.dataset.th; applyTheme(); save(); settings(); });
+  $('#sheet').querySelectorAll('[data-cur]').forEach(b => b.onclick = () => { cfg.cur = b.dataset.cur; save(); render(); settings(); });
+  $('#sCopy').onclick = async () => { try { await navigator.clipboard.writeText(backup()); toast('已复制，粘贴到备忘录保存'); } catch { pasteSheet(backup()); } };
+  $('#sPaste').onclick = () => pasteSheet('');
+  $('#sDl').onclick = () => download(`牌局本备份-${today()}.json`, backup(), 'application/json');
+  $('#sUp').onclick = () => $('#fileIn').click();
+  $('#sCsv').onclick = () => { const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    download(`牌局本-${today()}.csv`, '﻿' + [['日期', '地点', '输赢', '备注'], ...sorted().map(s => [s.date, s.location, amt(s), s.note])].map(r => r.map(q).join(',')).join('\n'), 'text/csv'); };
+  $('#sClr').onclick = async () => { if (await ask('清空全部记录', `将删除全部 ${sessions.length} 条记录，无法恢复。<br>建议先复制备份。`, '全部清空')) { sessions = []; save(); render(); toast('已清空'); } };
 }
-
-function rebuyForm() {
-  const last = live.buys[live.buys.length - 1];
-  openSheet(`<h3>加买</h3><div class="field"><label for="rb">金额</label><input class="amt" type="number" inputmode="decimal" id="rb" value="${last}"></div>
-    <div class="actions"><button class="btn" id="rNo">取消</button><button class="btn pri" id="rGo">确认加买</button></div>`);
-  $('#rNo').onclick = closeSheet;
-  $('#rGo').onclick = () => { const v = +$('#rb').value; if (!v) return; live.buys.push(v); saveAll(); closeSheet(); render(); toast(`已加买 ${money(v)}`); };
+function pasteSheet(text) {
+  openSheet(`<div class="sh"><h3>${text ? '复制备份' : '粘贴恢复'}</h3><button id="pX">关闭</button></div>
+    <p class="msg">${text ? '长按全选并复制下面的内容，保存到备忘录。' : '把之前复制的备份内容粘贴到下面。'}</p>
+    <textarea class="paste" id="pT">${esc(text)}</textarea>${text ? '' : '<div class="foot"><button class="btn" id="pGo">恢复</button></div>'}`);
+  $('#pX').onclick = closeSheet;
+  if (text) $('#pT').select(); else $('#pGo').onclick = () => importText($('#pT').value);
 }
-
-function pasteForm() {
-  openSheet(`<h3>粘贴备份导入</h3><div class="field"><textarea class="paste" id="pj" placeholder="把之前复制的备份内容粘贴到这里"></textarea></div>
-    <div class="actions"><button class="btn" id="pNo">取消</button><button class="btn pri" id="pGo">导入</button></div>`);
-  $('#pNo').onclick = closeSheet;
-  $('#pGo').onclick = () => importText($('#pj').value);
-}
-
-function importText(text) {
-  let arr;
-  try { const d = JSON.parse(text); arr = Array.isArray(d) ? d : d.sessions; if (!Array.isArray(arr)) throw 0; }
-  catch { toast('内容格式不对，请粘贴完整的备份'); return; }
+function importText(t) {
+  let arr; try { const d = JSON.parse(t); arr = Array.isArray(d) ? d : d.sessions; if (!Array.isArray(arr)) throw 0; } catch { toast('内容不完整，请重新复制'); return; }
   const m = new Map(sessions.map(s => [s.id, s])); let n = 0;
   arr.forEach(s => { if (s && s.id && /^\d{4}-\d\d-\d\d$/.test(s.date)) { m.set(s.id, s); n++; } });
-  sessions = [...m.values()]; saveAll(); closeSheet(); render(); toast(`已导入 ${n} 场`);
+  sessions = [...m.values()]; save(); closeSheet(); render(); toast(`已恢复 ${n} 条`);
 }
-
 function download(name, text, type) {
-  try {
-    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name;
-    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-  } catch { toast('下载失败，可改用“复制备份”'); }
+  try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; document.body.appendChild(a); a.click(); a.remove(); }
+  catch { toast('无法下载，请用“复制备份”'); }
 }
-const backup = () => JSON.stringify({ app: 'poker-log', version: 1, exported: new Date().toISOString(), sessions }, null, 1);
-
 function sample() {
-  const locs = ['老王家', '星河俱乐部', '公司局'], stakes = ['1/2', '2/5', '1/2'];
-  const out = [], d = new Date(); d.setDate(d.getDate() - 100);
-  let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
-  for (let i = 0; i < 26; i++) {
-    d.setDate(d.getDate() + 2 + Math.floor(rnd() * 5)); if (d > new Date()) break;
-    const li = Math.floor(rnd() * 3), tour = rnd() < .15;
-    const buy = tour ? 300 : (stakes[li] === '2/5' ? 1000 : 400) * (1 + Math.floor(rnd() * 2));
-    const res = tour ? (rnd() < .25 ? Math.round(buy * (2 + rnd() * 6)) : 0) : Math.max(0, Math.round(buy * (0.2 + rnd() * 1.9) / 10) * 10);
-    out.push({ id: uid(), created: Date.now() + i, date: ymd(d), type: tour ? 'tour' : 'cash', location: locs[li], stake: tour ? '周赛' : stakes[li],
-      buyIn: buy, cashOut: res, hours: tour ? 5 : 3 + Math.round(rnd() * 8) / 2, note: '示例数据', rank: tour ? (res ? `${1 + Math.floor(rnd() * 9)}/80` : '') : '' });
-  }
+  const L = ['老王家', '星河俱乐部', '公司周五局', '澳门'], out = [], d = new Date(); d.setDate(d.getDate() - 150);
+  let sd = 11; const r = () => (sd = (sd * 9301 + 49297) % 233280) / 233280;
+  while (true) { d.setDate(d.getDate() + 3 + Math.floor(r() * 6)); if (d > new Date()) break;
+    const li = r() < .1 ? 3 : Math.floor(r() * 3), base = [300, 800, 200, 3000][li];
+    out.push({ id: uid(), created: Date.now() + out.length, date: ymd(d), location: L[li], amount: Math.round((r() - .43) * 2.4 * base / 10) * 10, note: '示例' }); }
   return out;
 }
 
-/* ---------- events ---------- */
-document.addEventListener('click', async e => {
-  const t = e.target.closest('[data-tab],[data-ft],[data-fp],[data-edit],[data-act]');
-  if (!t || t.closest('#sheet') && !t.dataset.act) return;
-  if (t.dataset.tab) { tab = t.dataset.tab; render(); scrollTo(0, 0); return; }
-  if (t.dataset.ft) { fType = t.dataset.ft; render(); return; }
-  if (t.dataset.fp) { fPeriod = t.dataset.fp; render(); return; }
-  if (t.dataset.edit) { sessionForm(t.dataset.edit); return; }
-  switch (t.dataset.act) {
-    case 'add': sessionForm(); break;
-    case 'sample': sessions = sessions.concat(sample()); saveAll(); render(); toast('已载入示例，可在设置里清空'); break;
-    case 'startLive': startLiveForm(); break;
-    case 'liveRebuy': rebuyForm(); break;
-    case 'liveEnd': {
-      const hrs = Math.round((Date.now() - live.start) / 36e5 * 4) / 4;
-      sessionForm(null, { type: 'cash', date: ymd(new Date(live.start)), location: live.location, stake: live.stake, buyIn: sum(live.buys, b => +b), hours: hrs || 0.25, note: live.buys.length > 1 ? `加买 ${live.buys.length - 1} 次` : '' });
-      setTimeout(() => $('#fOut') && $('#fOut').focus(), 300); break;
-    }
-    case 'liveCancel': if (await ask('放弃这场牌局？', '计时和买入记录会被丢弃，不会保存。', '放弃', true)) { live = null; saveAll(); render(); } break;
-    case 'cur': {
-      const opts = ['¥', '$', 'HK$', '€', '£', '₩', 'NT$', ''];
-      openSheet(`<h3>货币符号</h3><div class="quick" style="gap:8px">${opts.map(c => `<button class="btn" style="font-size:16px;padding:10px 16px" data-cur="${c}">${c || '无'}</button>`).join('')}</div>`);
-      $('#sheet').querySelectorAll('[data-cur]').forEach(b => b.onclick = () => { cfg.cur = b.dataset.cur; saveAll(); closeSheet(); render(); });
-      break;
-    }
-    case 'theme': cfg.theme = { auto: 'dark', dark: 'light', light: 'auto' }[cfg.theme]; applyTheme(); saveAll(); render(); break;
-    case 'copyJson':
-      try { await navigator.clipboard.writeText(backup()); toast('备份已复制，可粘贴到备忘录或微信保存'); }
-      catch { pasteForm(); $('#pj').value = backup(); $('#pj').select(); $('#sheet h3').textContent = '复制下面的内容保存'; }
-      break;
-    case 'pasteJson': pasteForm(); break;
-    case 'dlJson': download(`牌局本备份-${today()}.json`, backup(), 'application/json'); break;
-    case 'upJson': $('#fileIn').click(); break;
-    case 'dlCsv': {
-      const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
-      const rows = [['日期', '类型', '地点', '级别/赛事', '买入', '带出/奖金', '盈亏', '时长(h)', '名次', '备注']].concat(
-        sorted().map(s => [s.date, s.type === 'tour' ? '比赛' : '现金局', s.location, s.stake, s.buyIn, s.cashOut, profit(s), s.hours, s.rank, s.note]));
-      download(`牌局本-${today()}.csv`, '﻿' + rows.map(r => r.map(q).join(',')).join('\n'), 'text/csv'); break;
-    }
-    case 'clear':
-      if (await ask('清空所有记录？', `将删除全部 ${sessions.length} 场记录，无法恢复。建议先复制备份。`, '全部清空', true)) { sessions = []; live = null; saveAll(); render(); toast('已清空'); }
-      break;
-  }
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-tab],[data-period],[data-edit],[data-act]'); if (!t) return;
+  if (t.dataset.tab) { tab = t.dataset.tab; render(); scrollTo({ top: 0 }); }
+  else if (t.dataset.period) { period = t.dataset.period; render(); }
+  else if (t.dataset.edit) form(t.dataset.edit);
+  else if (t.dataset.act === 'add') form();
+  else if (t.dataset.act === 'settings') settings();
+  else if (t.dataset.act === 'sample') { sessions = sessions.concat(sample()); save(); render(); toast('已载入示例，可在设置中清空'); }
 });
-$('#addBtn').onclick = () => sessionForm();
 $('#fileIn').onchange = async e => { const f = e.target.files[0]; if (f) importText(await f.text()); e.target.value = ''; };
-document.addEventListener('visibilitychange', () => { if (!document.hidden && live) render(); });
 
 applyTheme(); render();
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
